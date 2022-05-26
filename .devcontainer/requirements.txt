@@ -3,5 +3,6 @@ black==22.3.0
 equinox==0.5.0
 jax==0.3.13
 jaxlib==0.3.10+cuda11.cudnn82
+optax==0.1.2
 tensorflow==2.9.1
 tensorflow-datasets==4.5.2
