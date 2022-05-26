@@ -1,0 +1,32 @@
+{
+    "name": "JAX-Lightning",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "runArgs": [
+        "--gpus=all",
+        //  Setting privileged is sometimes necessary to make GPUs visible
+        // https://bbs.archlinux.org/viewtopic.php?id=266915
+        "--privileged"
+    ],
+    "mounts": [
+        // Bind mount data here if necessary e.g.
+        //"source=/vol/biodata/data,target=${containerWorkspaceFolder}/mounted-data,type=bind"
+    ],
+    "settings": {
+        // This is the venv path set in the Dockerfile
+        "python.defaultInterpreterPath": "/opt/venv/bin/python"
+    },
+    "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "github.copilot",
+        "github.vscode-pull-request-github",
+        "njpwerner.autodocstring"
+    ],
+    "features": {
+        "github-cli": "latest"
+    },
+    "containerUser": "vscode",
+    "shutdownAction": "none" // don't stop container on exit
+}
