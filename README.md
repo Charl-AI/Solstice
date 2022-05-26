@@ -1,2 +1,2 @@
 # jax-lightning
-example library of modular models/datasets/strategies for JAX
+Inspired by pytorch-lightning, this is a proof-of-concept library for defining modular and structured models, datasets, training loops, and training stratgies.
