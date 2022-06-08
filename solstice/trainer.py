@@ -6,7 +6,7 @@ from experiment import Experiment
 # this would allow Hydra to fully switch in and out trainers
 
 
-class AbstractTrainer(ABC):
+class Trainer(ABC):
     def __init__(self, *args, **kwargs):
         pass
 
@@ -23,7 +23,7 @@ class AbstractTrainer(ABC):
         raise NotImplementedError()
 
 
-class StandardTrainer(AbstractTrainer):
+class StandardTrainer(Trainer):
     """Implementation of a standard training loop with logging and saving."""
 
     def __init__(
