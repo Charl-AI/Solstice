@@ -3,7 +3,7 @@ class for wrapping Optax optimizers, and an example implementation of SGD."""
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Optional, Tuple
+from typing import Tuple
 import dataclasses
 import equinox as eqx
 import optax
