@@ -11,8 +11,8 @@ import optax
 import tensorflow as tf
 from tqdm import tqdm
 
-from optimizer import Optimizer
-from solstice import ClassificationMetrics
+from solstice.optimizer import Optimizer
+from solstice.metrics import ClassificationMetrics
 
 Metrics = Any
 

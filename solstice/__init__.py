@@ -1,9 +1,9 @@
 """Solstice, a library for scaling experiments with Equinox."""
 
-from experiment import ClassificationExperiment, Experiment
-from logger import Logger, TensorBoardLogger, WandbLogger
-from metrics import ClassificationMetrics, Metrics
-from optimizer import OptaxOptimizer, Optimizer, SGDOptimizer
+from solstice.experiment import ClassificationExperiment, Experiment
+from solstice.logger import Logger, TensorBoardLogger, WandbLogger
+from solstice.metrics import ClassificationMetrics, Metrics
+from solstice.optimizer import OptaxOptimizer, Optimizer, SGDOptimizer
 
 __all__ = (
     "ClassificationExperiment",
