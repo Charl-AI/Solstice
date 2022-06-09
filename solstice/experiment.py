@@ -12,6 +12,7 @@ import tensorflow as tf
 from tqdm import tqdm
 
 from optimizer import Optimizer
+from solstice import ClassificationMetrics
 
 Metrics = Any
 
@@ -151,12 +152,12 @@ class Experiment(eqx.Module, ABC):
         This is a  staticmethod, so pass in an instance of an Experiment to be tested.
 
         Args:
-            experiment (Experiment): Experiment to test.
-            test_ds (tf.data.Dataset): Test dataset.
-            logger (_type_, optional): _description_. Defaults to None.
+            - experiment (Experiment): Experiment to test.
+            - test_ds (tf.data.Dataset): Test dataset.
+            - logger (_type_, optional): _description_. Defaults to None.
 
         Returns:
-            Mapping[str, float]: Dictionary of scalar result metrics.
+            - Mapping[str, float]: Dictionary of scalar result metrics.
         """
         metrics = None
 
@@ -189,10 +190,10 @@ class CallableModule(eqx.Module, ABC):
 
 
 class ClassificationExperiment(Experiment):
-    """Pre-made experiment class for basic classification tasks.
-
-    For multiclass classification, softmax cross entropy is used as a loss function. In
-    the binary class case, sigmoid binary cross entropy is used.
+    """Pre-made experiment class for basic classification tasks. Performs multiclass
+    classification with softmax cross entropy loss. You can use this class for binary
+    classification if you treat it as a multi-class classification task with two
+    classes and threshold set at 0.5.
     """
 
     model: CallableModule
@@ -202,16 +203,24 @@ class ClassificationExperiment(Experiment):
     def __init__(
         self, model: CallableModule, optimizer: Optimizer, num_classes: int
     ) -> None:
+        """
+        Args:
+            - model (CallableModule): Model to train (instance of a callable
+                `eqx.Module`), should return unnormalised logits shape
+                (batch_size, num_classes) from its `__call__` method.
+            - optimizer (Optimizer): Optimizer to use (instance of a Solstice
+                optimizer).
+            - num_classes (int): Number of classes in the dataset.
+        """
 
         self.model = model
         self.opt = optimizer
         self.num_classes = num_classes
 
-        # add assertion about model output shape
-
     @eqx.filter_jit
     def __call__(self, *args, **kwargs) -> Any:
-        return self.model(*args, **kwargs)
+        logits = self.model(*args, **kwargs)
+        return jnp.argmax(logits, axis=-1)
 
     @eqx.filter_jit
     def train_step(
@@ -233,7 +242,8 @@ class ClassificationExperiment(Experiment):
         updates, new_opt = self.opt(grads)
         new_model = eqx.apply_updates(self.model, updates)  # type: ignore
 
-        metrics = None
+        preds = jnp.argmax(logits, axis=-1)
+        metrics = ClassificationMetrics(preds, y, loss, self.num_classes)
 
         return metrics, dataclasses.replace(self, model=new_model, opt=new_opt)
 
@@ -245,5 +255,6 @@ class ClassificationExperiment(Experiment):
         loss = jnp.mean(
             optax.softmax_cross_entropy(logits, jax.nn.one_hot(y, self.num_classes))
         )
-        metrics = None
+        preds = jnp.argmax(logits, axis=-1)
+        metrics = ClassificationMetrics(preds, y, loss, self.num_classes)
         return metrics
