@@ -1,16 +1,17 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 import dataclasses
-from typing import Any, Mapping, Protocol, Tuple
+from abc import ABC, abstractmethod
+from typing import Any, Mapping, Tuple
+
 import equinox as eqx
-from optax import GradientTransformation
 import jax
 import jax.numpy as jnp
-from tqdm import tqdm
-from optimizer import Optimizer
 import optax
 import tensorflow as tf
+from tqdm import tqdm
+
+from optimizer import Optimizer
 
 Metrics = Any
 
@@ -178,6 +179,15 @@ class Experiment(eqx.Module, ABC):
         return metrics_dict
 
 
+class CallableModule(eqx.Module, ABC):
+    """Equinox model which implements the `__call__` method. Just used internally for
+    type hinting models."""
+
+    @abstractmethod
+    def __call__(self, *args, **kwargs) -> Any:
+        raise NotImplementedError()
+
+
 class ClassificationExperiment(Experiment):
     """Pre-made experiment class for basic classification tasks.
 
@@ -185,12 +195,12 @@ class ClassificationExperiment(Experiment):
     the binary class case, sigmoid binary cross entropy is used.
     """
 
-    model: eqx.Module
+    model: CallableModule
     opt: Optimizer
     num_classes: int = eqx.static_field()
 
     def __init__(
-        self, model: eqx.Module, optimizer: Optimizer, num_classes: int
+        self, model: CallableModule, optimizer: Optimizer, num_classes: int
     ) -> None:
 
         self.model = model
