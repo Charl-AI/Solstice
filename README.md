@@ -34,19 +34,36 @@ Solstice is essentially a library of 4 abstractions that help you organise your 
 
 ## Examples
 
-We provide 6 examples of Solstice usage in different settings (this is aspirational, not all implemented yet!):
+We provide 6 full examples of Solstice usage in different settings (this is aspirational, not all implemented yet!):
 
 - **MNIST MLP:** Implement everything from scratch to classify MNIST digits.
 
 - **CIFAR Convnext:** Implementation of a ConvNext model (https://arxiv.org/abs/2201.03545), using the built-in ClassificationExperiment and training loop to classify CIFAR digits.
 
-- **Adversarial Training** Train a model adversarially to remove bias from Colour-MNIST (based on https://arxiv.org/abs/1812.10352).
+- **Adversarial Training:** Train a model adversarially to remove bias from Colour-MNIST (based on https://arxiv.org/abs/1812.10352).
 
-- **Hydra Sweep** Integrate a regression model with hydra to perform hyperparameter sweeps.
+- **Hydra Sweep:** Integrate a regression model with hydra to perform hyperparameter sweeps.
 
-- **Vmap Ensemble** Train an ensemble of small neural networks simultaneously on one GPU (inspired by https://willwhitney.com/parallel-training-jax.html).
+- **Vmap Ensemble:** Train an ensemble of small neural networks simultaneously on one GPU (inspired by https://willwhitney.com/parallel-training-jax.html).
 
 - **Flax Compatibility** Use a Flax model in Solstice with data-parallel multi-gpu training.
+
+- **Bonus example:** No machine learning library would be complete without a snazzy 'MNIST in 5 lines' example!
+
+```python
+
+import jax
+import equinox as eqx
+import solstice
+import tensorflow_datasets as tfds
+
+ds = tfds.load(name="mnist", split="train", as_supervised=True).batch(32)
+model = eqx.nn.MLP(in_size=784,out_size=10,width_size=512,depth=3,key=jax.random.PRNGKey(0))
+opt = solstice.OptaxOptimizer(optax.adam(learning_rate=1e-3), eqx.filter(model, eqx.is_array))
+exp = sol.ClassificationExperiment(model, optimizer, num_classes=10)
+exp = sol.ClassificationExperiment.train(experiment=exp, train_ds=ds, num_epochs=10)
+
+```
 
 
 ## A note on philosophy
