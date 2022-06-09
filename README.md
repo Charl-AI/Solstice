@@ -34,19 +34,19 @@ Solstice is essentially a library of 4 abstractions that help you organise your 
 
 ## Examples
 
-We provide X examples of Solstice usage:
+We provide 6 examples of Solstice usage in different settings (this is aspirational, not all implemented yet!):
 
-- mnist_mlp
+- **MNIST MLP:** Implement everything from scratch to classify MNIST digits.
 
-- cifar_convnext
+- **CIFAR Convnext:** Implementation of a ConvNext model (https://arxiv.org/abs/2201.03545), using the built-in ClassificationExperiment and training loop to classify CIFAR digits.
 
-- adversarial_training
+- **Adversarial Training** Train a model adversarially to remove bias from Colour-MNIST (based on https://arxiv.org/abs/1812.10352).
 
-- hydra_sweep
+- **Hydra Sweep** Integrate a regression model with hydra to perform hyperparameter sweeps.
 
-- vmap_ensemble
+- **Vmap Ensemble** Train an ensemble of small neural networks simultaneously on one GPU (inspired by https://willwhitney.com/parallel-training-jax.html).
 
-- flax_compatibility
+- **Flax Compatibility** Use a Flax model in Solstice with data-parallel multi-gpu training.
 
 
 ## A note on philosophy
