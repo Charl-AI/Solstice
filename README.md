@@ -18,7 +18,7 @@ Solstice is essentially a library of 4 abstractions that help you organise your 
 
 - `solstice.Logger`: A Solstice logger is an interface for logging dictionaries of scalars.
 
-### Implementations (examples for basic use cases, implement your own)
+### Implementations (examples for basic use cases, implement your own for more niche/advanced cases)
 
 - `solstice.ClassificationExperiment`: Pre-made Experiment for basic single and multi-class classification problems. Includes pre-made steps and training loop. Just plug in a model, optimizer, and dataset and go!
 
