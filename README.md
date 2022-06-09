@@ -1,12 +1,12 @@
 # Solstice
 
-This is a proof-of-concept library for defining modular and structured models, datasets, and training loops in JAX. Built with Equinox. Designed for researchers to flexibly create and scale experiments, filling the same niche for Equinox as Jaxline for Haiku, Scenic for Flax, and pytorch-lightning for Pytorch.
+Solstice is a library for constructing modular and structured deep learning experiments in JAX. Built with Equinox. Designed for researchers to flexibly create and scale experiments, filling the same niche for Equinox as Jaxline for Haiku, Scenic for Flax, and pytorch-lightning for Pytorch.
 
 The fundamental idea behind this project is to represent the init/apply pattern typically used in JAX and functional programming within a familiar Pythonic class structure (i.e. `__init__()` and `__call__()`), this enables us to use design principles such as dependency inversion to loosen the coupling of our program while retaining immutability and other functional programming advantages. The library itself is simple and flexible, leaving most important decisions to the user - we aim to provide high-quality examples to demonstrate the different ways you can use this flexibility.
 
 ## API
 
-Solstice is essentially a library of 4 abstractions that help you organise your code. We provide some implementations which can be used for basic cases, but if you need more flexibility, it is trivial to write your own. Solstice is just a small library on top of Equinox, so you can feel free to write pure JAX code and mix-and-match with other libraries. If you understand Equinox, you understand Solstice.
+Solstice is essentially a library of 4 abstractions that help you organise your code. We provide some implementations which can be used for basic cases, but if you need more flexibility, it is trivial to write your own. Solstice is just a small library on top of Equinox, so you can feel free to write pure JAX code and mix-and-match with other libraries. If you understand JAX/Equinox, you understand Solstice.
 
 ### Abstractions (these are `ABC`s, so they specify an interface you should implement by subclassing the abstract class)
 
@@ -20,7 +20,7 @@ Solstice is essentially a library of 4 abstractions that help you organise your 
 
 ### Implementations (examples for basic use cases, implement your own for more niche/advanced cases)
 
-- `solstice.ClassificationExperiment`: Pre-made Experiment for basic single and multi-class classification problems. Includes pre-made steps and training loop. Just plug in a model, optimizer, and dataset and go!
+- `solstice.ClassificationExperiment`: Pre-made Experiment for basic multi-class classification problems. Includes pre-made steps and training loop. Just plug in a model, optimizer, and dataset and go!
 
 - `solstice.ClassificationMetrics`: Pre-made Metrics class for basic classification experiments. Keeps track of the overall confusion matrix and uses it to compute a battery of metrics.
 
