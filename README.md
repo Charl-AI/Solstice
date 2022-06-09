@@ -16,7 +16,7 @@ Solstice is essentially a library of 4 abstractions that help you organise your 
 
 - `solstice.Optimizer`: A Solstice optimizer knows how to initialise optimizer state (with `__init__()`), and apply the optimizer to convert a tree of gradients to a tree of updates (with `__call__()`).
 
-- `solstice.Logger`: A Solstice logger is an interface for logging scalars (essentially an adaptor for)
+- `solstice.Logger`: A Solstice logger is an interface for logging dictionaries of scalars
 
 ### Implementations (examples for basic use cases, implement your own)
 
