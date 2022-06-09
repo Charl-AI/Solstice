@@ -7,3 +7,4 @@ jaxlib==0.3.10+cuda11.cudnn82
 optax==0.1.2
 tensorflow==2.9.1
 tensorflow-datasets==4.5.2
+tqdm==4.64.0
