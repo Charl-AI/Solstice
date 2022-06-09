@@ -6,7 +6,7 @@ The fundamental idea behind this project is to represent the init/apply pattern 
 
 ## API
 
-Solstice is essentially a library of X abstractions that help you organise your code. We provide some implementations which can be used for basic cases, but if you need more flexibility, it is trivial to write your own. Solstice is just a small library on top of Equinox, so you can feel free to write pure JAX code and mix-and-match with other libraries. If you understand Equinox, you understand Solstice.
+Solstice is essentially a library of 4 abstractions that help you organise your code. We provide some implementations which can be used for basic cases, but if you need more flexibility, it is trivial to write your own. Solstice is just a small library on top of Equinox, so you can feel free to write pure JAX code and mix-and-match with other libraries. If you understand Equinox, you understand Solstice.
 
 ### Abstractions (these are `ABC`s, so they specify an interface you should implement by subclassing the abstract class)
 
