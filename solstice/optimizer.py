@@ -39,8 +39,8 @@ class OptaxOptimizer(Optimizer):
     ) -> None:
         """
         Args:
-            optimizer (optax.GradientTransformation): Optax optimizer to wrap.
-            params (optax.Params): Model params for initialising optimizer.
+            - optimizer (optax.GradientTransformation): Optax optimizer to wrap.
+            - params (optax.Params): Model params for initialising optimizer.
         """
         self.update_fn = optimizer.update
         self.opt_state = optimizer.init(params)
@@ -50,14 +50,15 @@ class OptaxOptimizer(Optimizer):
     ) -> Tuple[optax.Updates, OptaxOptimizer]:
         """
         Args:
-            grads (optax.Params): PyTree of gradients.
-            params (optax.Params | None, optional): PyTree of current parameters
-            with same shape as grads. Only needed for optimizers which use the current
-            params to determine the updates. Defaults to None.
+            - grads (optax.Params): PyTree of gradients.
+            - params (optax.Params | None, optional): PyTree of current parameters
+                with same shape as grads. Only needed for optimizers which use the
+                current params to determine the updates. Defaults to None.
 
         Returns:
-            Tuple[optax.Updates, OptaxOptimizer]: Tuple of updates with the same shape
-            as the grads and params, and an updated Optimizer object with the new state.
+            - Tuple[optax.Updates, OptaxOptimizer]: Tuple of updates with the same shape
+                as the grads and params, and an updated Optimizer object with the new
+                state.
         """
 
         updates, new_state = self.update_fn(self.opt_state, grads, params)
