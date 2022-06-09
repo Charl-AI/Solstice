@@ -20,7 +20,7 @@ class Optimizer(eqx.Module, ABC):
 
     @abstractmethod
     def __call__(
-        self, grads: optax.Params, params: Optional[optax.Params] = None
+        self, grads: optax.Params, params: optax.Params | None = None
     ) -> Tuple[optax.Updates, Optimizer]:
         """Calling the optimizer converts a PyTree of gradients to a tree of updates
         with the same shape, returning them and the updated optimizer state. The
@@ -46,12 +46,12 @@ class OptaxOptimizer(Optimizer):
         self.opt_state = optimizer.init(params)
 
     def __call__(
-        self, grads: optax.Params, params: Optional[optax.Params] = None
+        self, grads: optax.Params, params: optax.Params | None = None
     ) -> Tuple[optax.Updates, OptaxOptimizer]:
         """
         Args:
             grads (optax.Params): PyTree of gradients.
-            params (Optional[optax.Params], optional): PyTree of current parameters
+            params (optax.Params | None, optional): PyTree of current parameters
             with same shape as grads. Only needed for optimizers which use the current
             params to determine the updates. Defaults to None.
 
