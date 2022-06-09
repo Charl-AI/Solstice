@@ -2,7 +2,7 @@
 
 This is a proof-of-concept library for defining modular and structured models, datasets, and training loops in JAX. Built with Equinox. Designed for researchers to flexibly create and scale experiments, filling the same niche for Equinox as Jaxline for Haiku, Scenic for Flax, and pytorch-lightning for Pytorch.
 
-The fundamental idea behind this project is to represent the init/apply pattern typically used in JAX and functional programming within a familiar Pythonic class structure (e.g. `__init__()` and `__call__()`), this enables us to use design principles such as dependency inversion to loosen the coupling of our program while retaining immutability and other functional programming advantages. The library itself is simple and flexible, leaving most important decisions to the user - we aim to provide high-quality examples to demonstrate the different ways you can use this flexibility.
+The fundamental idea behind this project is to represent the init/apply pattern typically used in JAX and functional programming within a familiar Pythonic class structure (i.e. `__init__()` and `__call__()`), this enables us to use design principles such as dependency inversion to loosen the coupling of our program while retaining immutability and other functional programming advantages. The library itself is simple and flexible, leaving most important decisions to the user - we aim to provide high-quality examples to demonstrate the different ways you can use this flexibility.
 
 ## API
 
