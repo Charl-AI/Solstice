@@ -1,6 +1,6 @@
 # Solstice
 
-Solstice is a library for constructing modular and structured deep learning experiments in JAX. Built with Equinox. Designed for researchers to flexibly create and scale experiments, filling the same niche for Equinox as Jaxline for Haiku, Scenic for Flax, and pytorch-lightning for Pytorch.
+Solstice is a library for constructing modular and structured deep learning experiments in JAX. Built with [Equinox](https://docs.kidger.site/equinox/). Designed for researchers to flexibly create and scale experiments, filling the same niche for Equinox as [Jaxline](https://github.com/deepmind/jaxline) for Haiku, [Scenic](https://github.com/google-research/scenic) for Flax, and [PyTorch Lightning](https://pytorch-lightning.readthedocs.io/en/latest/) for Pytorch.
 
 The fundamental idea behind this project is to represent the init/apply pattern typically used in JAX and functional programming within a familiar Pythonic class structure (i.e. `__init__()` and `__call__()`), this enables us to use design principles such as dependency inversion to loosen the coupling of our program while retaining immutability and other functional programming advantages. The library itself is simple and flexible, leaving most important decisions to the user - we aim to provide high-quality examples to demonstrate the different ways you can use this flexibility.
 
@@ -24,47 +24,37 @@ Solstice is essentially a library of 4 abstractions that help you organise your 
 
 - `solstice.ClassificationMetrics`: Pre-made Metrics class for basic classification experiments. Keeps track of the overall confusion matrix and uses it to compute a battery of metrics.
 
-- `solstice.OptaxOptimizer`: Adaptor which wraps any Optax optimizer to become a Solstice optimizer.
+- `solstice.OptaxOptimizer`: Adaptor which wraps any [Optax](https://optax.readthedocs.io/en/latest/) optimizer to become a Solstice optimizer.
 
 - `solstice.SGDOptimizer`: Implementation of classic SGD optimizer.
 
-- `solstice.TensorBoardLogger`: Logger for asynchronously writing scalars to TensorBoard
+- `solstice.PythonLogger`: Log asynchronously to the terminal with inbuilt [Python logger](https://docs.python.org/3/library/logging.html).
 
-- `solstice.WandBLogger`: Adaptor to use weights and biases with Solstice interface.
+- `solstice.TensorBoardLogger`: Logger for asynchronously writing scalars to [TensorBoard](https://www.tensorflow.org/tensorboard).
+
+- `solstice.WandBLogger`: Adaptor to use [Weights and Biases](https://docs.wandb.ai/) with Solstice logger interface.
 
 ## Examples
 
-We provide 6 full examples of Solstice usage in different settings (this is aspirational, not all implemented yet!):
+We provide 6 full examples of Solstice usage in different settings (this is aspirational, not all implemented yet!) *TODO: ensure at least one demonstrates multi-GPU data-parallel, consider building this into default `ClassificationExperiment`*:
 
-- **MNIST MLP:** Implement everything from scratch to classify MNIST digits.
+- **MNIST MLP:** Implement an MNIST classifier with built-in Solstice modules.
 
-- **CIFAR Convnext:** Implementation of a ConvNext model (https://arxiv.org/abs/2201.03545), using the built-in ClassificationExperiment and training loop to classify CIFAR digits.
+- **CIFAR Convnext:** Implement a [ConvNext](https://arxiv.org/abs/2201.03545) model in Equinox, using the built-in `ClassificationExperiment` and training loop to classify CIFAR-10 on multi-GPU(?). Additionally demonstrates using [Hydra](https://hydra.cc/docs/intro/) for config management.
 
-- **Adversarial Training:** Train a model adversarially to remove bias from Colour-MNIST (based on https://arxiv.org/abs/1812.10352).
-
-- **Hydra Sweep:** Integrate a regression model with hydra to perform hyperparameter sweeps.
+- **Adversarial Training:** Write your own `Experiment` class to train a model adversarially for removing bias from Colour-MNIST (based on https://arxiv.org/abs/1812.10352). Additionally demonstrates compatibility with [Flax]()
 
 - **Vmap Ensemble:** Train an ensemble of small neural networks simultaneously on one GPU (inspired by https://willwhitney.com/parallel-training-jax.html).
 
-- **Flax Compatibility** Use a Flax model in Solstice with data-parallel multi-gpu training.
+## Tutorials
 
-- **Bonus example:** No machine learning library would be complete without a snazzy 'MNIST in 5 lines' example!
+We provide 3 tutorial notebooks, for longer form writing and explanations:
 
-```python
+- **Library Compatibility:** Solstice is remarkably simple and is actually trivial to use alongside other JAX libraries. We provide a guide for common cases.
 
-import jax
-import equinox as eqx
-import solstice
-import tensorflow_datasets as tfds
+- **Configuration Management:** The Solstice library is not opinionated about config management and doesn't lock you in to any solution. Nonetheless, it is important to get right because good config management can accelerate your research by allowing faster iteration of ideas. We show how easy it is to integrate Solstice into solutions such as Hydra, ml_collections, argparse, etc...
 
-ds = tfds.load(name="mnist", split="train", as_supervised=True).batch(32)
-model = eqx.nn.MLP(in_size=784,out_size=10,width_size=512,depth=3,key=jax.random.PRNGKey(0))
-opt = solstice.OptaxOptimizer(optax.adam(learning_rate=1e-3), eqx.filter(model, eqx.is_array))
-exp = sol.ClassificationExperiment(model, optimizer, num_classes=10)
-exp = sol.ClassificationExperiment.train(experiment=exp, train_ds=ds, num_epochs=10)
-
-```
-
+- **Design Decisions:** Not really a tutorial, more of an explanation/justification for why Solstice is the way it is.
 
 ## A note on philosophy
 
