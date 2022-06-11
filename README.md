@@ -1,12 +1,12 @@
 # Solstice
 
-Solstice is a library for constructing modular and structured deep learning experiments in JAX. Built with [Equinox](https://docs.kidger.site/equinox/). Designed for researchers to flexibly create and scale experiments, filling the same niche for Equinox as [Jaxline](https://github.com/deepmind/jaxline) for Haiku, [Scenic](https://github.com/google-research/scenic) for Flax, and [PyTorch Lightning](https://pytorch-lightning.readthedocs.io/en/latest/) for Pytorch.
+Solstice is a library for constructing modular and structured deep learning experiments in JAX. Built with [Equinox](https://docs.kidger.site/equinox/), but designed for full interoparability with JAX neural network libraries e.g. Stax, Haiku, Flax, Optax etc...
 
-The fundamental idea behind this project is to represent the init/apply pattern typically used in JAX and functional programming within a familiar Pythonic class structure (i.e. `__init__()` and `__call__()`), this enables us to use design principles such as dependency inversion to loosen the coupling of our program while retaining immutability and other functional programming advantages. The library itself is simple and flexible, leaving most important decisions to the user - we aim to provide high-quality examples to demonstrate the different ways you can use this flexibility.
+**Why use Solstice in a world with Flax/Haiku/Objax/...?** Solstice is *not* a neural network framework. It is a system for **organising** JAX code, with a small library of sane defaults for common use cases (think [PyTorch Lightning](https://pytorch-lightning.readthedocs.io/en/latest/), but for JAX). The library itself is simple and flexible, leaving most important decisions to the user - we aim to provide high-quality examples to demonstrate the different ways you can use this flexibility.
 
-## API
+## Whole API
 
-Solstice is essentially a library of 4 abstractions that help you organise your code. We provide some implementations which can be used for basic cases, but if you need more flexibility, it is trivial to write your own. Solstice is just a small library on top of Equinox, so you can feel free to write pure JAX code and mix-and-match with other libraries. If you understand JAX/Equinox, you understand Solstice.
+Solstice has 4 abstractions that help you organise your code. We provide some implementations which can be used for basic cases, but if you need more flexibility, it is trivial to write your own. Solstice is just a small library on top of Equinox, so you can feel free to write pure JAX code and mix-and-match with other libraries. If you understand JAX/Equinox, you understand Solstice.
 
 ### Abstractions (these are `ABC`s, so they specify an interface you should implement by subclassing the abstract class)
 
@@ -36,13 +36,13 @@ Solstice is essentially a library of 4 abstractions that help you organise your 
 
 ## Examples
 
-We provide 6 full examples of Solstice usage in different settings (this is aspirational, not all implemented yet!) *TODO: ensure at least one demonstrates multi-GPU data-parallel, consider building this into default `ClassificationExperiment`*:
+We provide 6 full examples of Solstice usage in different settings (this is aspirational, not all implemented yet!) *TODO: ensure at least one demonstrates multi-GPU data-parallel and multi-host/TPU, consider building this into default `ClassificationExperiment`*:
 
-- **MNIST MLP:** Implement an MNIST classifier with built-in Solstice modules.
+- **MNIST MLP:** Implements an MNIST classifier with built-in Solstice modules.
 
-- **CIFAR Convnext:** Implement a [ConvNext](https://arxiv.org/abs/2201.03545) model in Equinox, using the built-in `ClassificationExperiment` and training loop to classify CIFAR-10 on multi-GPU(?). Additionally demonstrates using [Hydra](https://hydra.cc/docs/intro/) for config management.
+- **CIFAR Convnext:** Implements a [ConvNext](https://arxiv.org/abs/2201.03545) model in Equinox, using the built-in `ClassificationExperiment` and training loop to classify CIFAR-10. Supports single CPU/GPU, data-parallel multi-GPU, and multi-host/TPU. Uses [Hydra](https://hydra.cc/docs/intro/) for config management.
 
-- **Adversarial Training:** Write your own `Experiment` class to train a model adversarially for removing bias from Colour-MNIST (based on https://arxiv.org/abs/1812.10352). Additionally demonstrates compatibility with [Flax]()
+- **Adversarial Training:** Write your own `Experiment` class to train a model adversarially for removing bias from Colour-MNIST (based on https://arxiv.org/abs/1812.10352). Uses Haiku to define the base network.
 
 - **Vmap Ensemble:** Train an ensemble of small neural networks simultaneously on one GPU (inspired by https://willwhitney.com/parallel-training-jax.html).
 
@@ -50,11 +50,14 @@ We provide 6 full examples of Solstice usage in different settings (this is aspi
 
 We provide 3 tutorial notebooks, for longer form writing and explanations:
 
-- **Library Compatibility:** Solstice is remarkably simple and is actually trivial to use alongside other JAX libraries. We provide a guide for common cases.
-
-- **Configuration Management:** The Solstice library is not opinionated about config management and doesn't lock you in to any solution. Nonetheless, it is important to get right because good config management can accelerate your research by allowing faster iteration of ideas. We show how easy it is to integrate Solstice into solutions such as Hydra, ml_collections, argparse, etc...
-
 - **Design Decisions:** Not really a tutorial, more of an explanation/justification for why Solstice is the way it is.
+
+- **From Flax to Solstice:** Not sold on why Solstice is useful? We provide a demonstration of how research projects end up needing a Solstice-like organisation system and develop it from scratch step-by-step.
+
+- **Library Compatibility:** Solstice is remarkably simple and is trivial to use alongside other JAX libraries. We provide a guide for common cases.
+
+- **Configuration Management:** The Solstice library is not opinionated about config management and doesn't lock you in to any solution. Nonetheless, it is important to get right because good config management can accelerate your research by allowing faster iteration of ideas. We show how to integrate Solstice into Hydra.
+
 
 ## A note on philosophy
 
