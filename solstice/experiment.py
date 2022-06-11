@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 from abc import ABC, abstractmethod
-from typing import Any, Mapping, Tuple
+from typing import Any, Mapping, Protocol, Tuple
 
 import equinox as eqx
 import jax
@@ -10,7 +10,7 @@ import jax.numpy as jnp
 import optax
 import tensorflow as tf
 from tqdm import tqdm
-
+import chex
 from solstice.optimizer import Optimizer
 from solstice.metrics import ClassificationMetrics
 
@@ -180,12 +180,12 @@ class Experiment(eqx.Module, ABC):
         return metrics_dict
 
 
-class CallableModule(eqx.Module, ABC):
-    """Equinox model which implements the `__call__` method. Just used internally for
-    type hinting models."""
+class CallablePyTree(Protocol):
+    """A callable PyTree is a JAX PyTree which implements the `__call__` method,
+    accepting an input array and optional PRNGKey. Just used internally for
+    type-hinting models. All models in `equinox.nn` follow this signature."""
 
-    @abstractmethod
-    def __call__(self, *args, **kwargs) -> Any:
+    def __call__(self, x: Any, *, key: chex.PRNGKey | None = None) -> Any:
         raise NotImplementedError()
 
 
@@ -196,20 +196,20 @@ class ClassificationExperiment(Experiment):
     classes and threshold set at 0.5.
     """
 
-    model: CallableModule
+    model: CallablePyTree
     opt: Optimizer
     num_classes: int = eqx.static_field()
 
     def __init__(
-        self, model: CallableModule, optimizer: Optimizer, num_classes: int
+        self, model: CallablePyTree, optimizer: Optimizer, num_classes: int
     ) -> None:
         """
         Args:
-            - model (CallableModule): Model to train (instance of a callable
-                `eqx.Module`), should return unnormalised logits shape
-                (batch_size, num_classes) from its `__call__` method.
-            - optimizer (Optimizer): Optimizer to use (instance of a Solstice
-                optimizer).
+            - model (CallablePyTree): Model to train. Must take an (unbatched) input
+                array and optional PRNGKey as inputs to it's `__call__` method,
+                returning unbatched, unnormalized vector of logits, shape
+                (num_classes,). An example of a model like this is `equinox.nn.MLP`.
+            - optimizer (Optimizer): Solstice Optimizer to use.
             - num_classes (int): Number of classes in the dataset.
         """
 
