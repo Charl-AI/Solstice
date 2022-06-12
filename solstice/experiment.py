@@ -12,9 +12,7 @@ import tensorflow as tf
 from tqdm import tqdm
 import chex
 from solstice.optimizer import Optimizer
-from solstice.metrics import ClassificationMetrics
-
-Metrics = Any
+from solstice.metrics import ClassificationMetrics, Metrics
 
 
 class Experiment(eqx.Module, ABC):
