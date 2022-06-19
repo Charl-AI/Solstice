@@ -47,15 +47,15 @@ class OOPCounter:
         self.count += 1
 
 # 'initialise' the OO counter
-oop_counter = OOPCounter()
-assert oop_counter.count == 0
-start_id = id(oop_counter)
+counter = OOPCounter()
+assert counter.count == 0
+start_id = id(counter)
 
 
-# 'apply' the increment method, updating the counter object's internal state
-oop_counter.increment()
-assert oop_counter.count == 1
-end_id = id(oop_counter)
+# 'apply' the increment method
+counter.increment()
+assert counter.count == 1
+end_id = id(counter)
 assert start_id == end_id
 
 ```
@@ -65,19 +65,19 @@ assert start_id == end_id
 
 ```python
 
-def functional_increment(current_value: int) -> int:
+def increment_fn(current_value: int) -> int:
     return current_value + 1
 
 # 'initialise' the functional counter
-functional_count = 0
-assert functional_count == 0
-start_id = id(functional_count)
+count = 0
+assert count == 0
+start_id = id(count)
 
 
-# 'apply' the functional increment method, returning a new state object
-functional_count = functional_increment(functional_count)
-assert functional_count == 1
-end_id = id(functional_count)
+# 'apply' the increment func
+count = increment_fn(count)
+assert count == 1
+end_id = id(count)
 assert start_id != end_id
 
 ```
@@ -96,14 +96,14 @@ class SolsticeStyleCounter:
         return dataclasses.replace(self, count=self.count + 1)
 
 # 'initialise' the SolsticeStyleCounter
-solstice_style_counter = SolsticeStyleCounter()
-assert solstice_style_counter.count == 0
-start_id = id(solstice_style_counter)
+counter = SolsticeStyleCounter()
+assert counter.count == 0
+start_id = id(counter)
 
 # 'apply' the increment method, returning a new state object
-solstice_style_counter = solstice_style_counter.increment()
-assert solstice_style_counter.count == 1
-end_id = id(solstice_style_counter)
+counter = counter.increment()
+assert counter.count == 1
+end_id = id(counter)
 assert start_id != end_id
 ```
 
