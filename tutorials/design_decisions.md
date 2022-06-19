@@ -31,9 +31,13 @@ This is all great, but Python is not *really* designed for the functional paradi
 
 The approach we take in Solstice is to use immutable dataclasses to try to get the best of both worlds, the code below shows how you would implement a simple counter in each of the paradigms.
 
+<table>
+<tr>
+<td> OO-Style </td> <td> Functional-Style </td> <td> Solstice/Equinox-Style </td>
+</tr>
+<tr>
+<td>
 
-| OO-Style  	|  Functional-Style 	|  Solstice/Equinox-Style 	|
-|
 ```python
 class OOPCounter:
     def __init__(self, initial_value: int = 0) -> None:
@@ -55,7 +59,10 @@ end_id = id(oop_counter)
 assert start_id == end_id
 
 ```
-|
+
+</td>
+<td>
+
 ```python
 
 def functional_increment(current_value: int) -> int:
@@ -74,7 +81,9 @@ end_id = id(functional_count)
 assert start_id != end_id
 
 ```
-|
+</td>
+<td>
+
 ```python
 
 import dataclasses
@@ -97,7 +106,11 @@ assert solstice_style_counter.count == 1
 end_id = id(solstice_style_counter)
 assert start_id != end_id
 ```
-|
+
+</td>
+</tr>
+</table>
+
 
 Notice that the Solstice style counter did not mutate its state, it returned a new instance of itself. The great thing about this pattern is that by keeping our data structures immutable, we get to keep the readability and XLA optimization advantages that come with it, however, we also get all the power of Python classes and OO-ish design patterns.
 
