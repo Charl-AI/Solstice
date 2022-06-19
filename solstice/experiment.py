@@ -23,7 +23,7 @@ class Experiment(eqx.Module, ABC):
     implement the logic for initialisation, training, evaluating, and predicting.
     This is a subclass of `equinox.Module`, so you are free to use pure JAX
     transformations such as `jax.jit` and `jax.pmap`, as long as you remember to filter
-    out static PyTree fields.
+    out static PyTree fields (e.g. with `eqx.filter_jit`).
 
     We provide basic training and testing loops which should suit most use cases. If
     you want more control, you can override these methods or even ignore them entirely.
@@ -48,7 +48,8 @@ class Experiment(eqx.Module, ABC):
         self, batch: Tuple[jnp.ndarray, ...] | Mapping[str, jnp.ndarray]
     ) -> Tuple[Metrics, Experiment]:
         """A training step takes a batch of data and returns the updated experiment and
-        metrics over the batch."""
+        metrics over the batch. When returning the updated experiment, it is usually
+        convenient to use `dataclasses.replace` from the built-in dataclasses library."""
         raise NotImplementedError()
 
     @abstractmethod
