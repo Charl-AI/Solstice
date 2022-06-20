@@ -1,9 +1,9 @@
-"""Solstice, a library for scaling experiments with Equinox."""
+"""Solstice, a library for creating and scaling experiments in JAX."""
 
 from solstice.experiment import ClassificationExperiment, Experiment
 from solstice.logger import Logger, TensorBoardLogger, WandbLogger
 from solstice.metrics import ClassificationMetrics, Metrics
-from solstice.optimizer import OptaxOptimizer, Optimizer, SGDOptimizer
+from solstice import compat as compat
 
 __all__ = (
     "ClassificationExperiment",
@@ -11,9 +11,6 @@ __all__ = (
     "Experiment",
     "Logger",
     "Metrics",
-    "OptaxOptimizer",
-    "Optimizer",
-    "SGDOptimizer",
     "TensorBoardLogger",
     "WandbLogger",
 )
