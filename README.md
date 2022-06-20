@@ -4,7 +4,115 @@ Solstice is a library for constructing modular and structured deep learning expe
 
 **Why use Solstice in a world with Flax/Haiku/Objax/...?** Solstice is *not* a neural network framework. It is a system for **organising** JAX code, with a small library of sane defaults for common use cases (think [PyTorch Lightning](https://pytorch-lightning.readthedocs.io/en/latest/), but for JAX). The library itself is simple and flexible, leaving most important decisions to the user - we aim to provide high-quality examples to demonstrate the different ways you can use this flexibility.
 
+## Getting Started with `solstice.Experiment`
+
+The central abstraction in Solstice is the `solstice.Experiment`. An Experiment is a container for all functions and stateful objects that are relevant to a run. You can create an Experiment by subclassing `solstice.Experiment` and implementing the abstractmethods for initialisation/training/evaluation/inference. Solstice Experiments come with a pre-made training loop which will fit most use cases (you can always overrwrite it with your own).
+
+
+```python
+
+import dataclasses
+import jax
+import jax.numpy as jnp
+import solstice
+
+class RandomClassifier(solstice.Experiment):
+    """A terrible, terrible classifier for binary class problems :("""
+    rng_state: Any
+
+    def __init__(self, rng: int):
+        self.rng_state = jax.random.PRNGKey(rng)
+
+    def __call__(self, x):
+        del x
+        return jax.random.bernoulli(self.rng_state, p=0.5)
+
+    @jax.jit
+    def train_step(self, batch: Tuple[jnp.ndarray, ...]) -> Tuple[solstice.Metrics, "MNISTClassifier"]:
+        x, y = batch
+        preds = jax.vmap(self)(x)
+        metrics = solstice.ClassificationMetrics(preds, y, loss=jnp.nan, num_classes=2)
+        new_rng_state = jax.random.split(self.rng_state)[0]
+
+        return metrics, dataclasses.replace(self, rng_state=new_rng_state)
+
+
+    @jax.jit
+    def eval_step(self, batch: Tuple[jnp.ndarray, ...]) -> solstice.Metrics:
+        x, y = batch
+        preds = jax.vmap(self)(x)
+        metrics = solstice.ClassificationMetrics(preds, y, loss=jnp.nan, num_classes=2)
+        return metrics
+
+exp = MNISTClassifier(42)
+trained_exp = exp.train(...)
+
+```
+
+Notice that we were able to use pure JAX transformations such as `jax.jit` within the class. This is because `solstice.Experiment` is just a subclass of `Equinox.Module`. We explain this further in the NOTE:TODO tutorial, but in general, if you understand JAX/Equinox, you will understand Solstice.
+
+## The `solstice.compat` API
+
+Using `solstice.Experiment` and the related utilities (such as `solstice.Metrics`) is likely enough for many projects, but where Solstice really shines is its ability to tie together different libraries in the JAX ecosystem. We provide `solstice.compat`, a library of compatibility layers which give a common interface for models and optimizers (and datasets???) in JAX. Using this API allows users to write `solstice.Experiment`s that are independent of the libraries used for neural network, optimization etc... We use this power to provide a set of plug-and-play Experiments for common use cases.
+
+Here, we show how `solstice.ClassificationExperiment` can be used with the `solstice.compat` API to classify MNIST with any neural network framework in just a few lines:
+
+TODO: complete example
+
+<table>
+<tr>
+<td> Solstice+Stax </td> <td> Solstice+Flax </td> <td> Solstice+Haiku </td>
+</tr>
+<tr>
+<td>
+
+```python
+
+import solstice
+import optax
+
+opt = solstice.compat.OptaxOptimizer(optax.adam(3e-4))
+
+exp = solstice.ClassificationExperiment(model, opt)
+exp.train(...)
+
+```
+
+</td>
+<td>
+
+```python
+
+import solstice
+import optax
+
+opt = solstice.compat.OptaxOptimizer(optax.adam(3e-4))
+
+exp = solstice.ClassificationExperiment(model, opt)
+exp.train(...)
+
+```
+</td>
+<td>
+
+```python
+
+import solstice
+import optax
+
+opt = solstice.compat.OptaxOptimizer(optax.adam(3e-4))
+
+exp = solstice.ClassificationExperiment(model, opt)
+exp.train(...)
+```
+
+</td>
+</tr>
+</table>
+
 ## Whole API
+
+TODO: move away from readme and into docs (when created)
 
 Solstice has 4 abstractions that help you organise your code. We provide some implementations which can be used for basic cases, but if you need more flexibility, it is trivial to write your own. Solstice is just a small library on top of Equinox, so you can feel free to write pure JAX code and mix-and-match with other libraries. If you understand JAX/Equinox, you understand Solstice.
 
@@ -36,25 +144,27 @@ Solstice has 4 abstractions that help you organise your code. We provide some im
 
 ## Examples
 
+TODO: move into separate example readme
+
 We provide 6 full examples of Solstice usage in different settings (this is aspirational, not all implemented yet!) *TODO: ensure at least one demonstrates multi-GPU data-parallel and multi-host/TPU, consider building this into default `ClassificationExperiment`*:
 
-- **MNIST MLP:** Implements an MNIST classifier with built-in Solstice modules.
+- **MNIST MLP:** Implement an MNIST classifier with built-in Solstice modules.
 
-- **CIFAR Convnext:** Implements a [ConvNext](https://arxiv.org/abs/2201.03545) model in Equinox, using the built-in `ClassificationExperiment` and training loop to classify CIFAR-10. Supports single CPU/GPU, data-parallel multi-GPU, and multi-host/TPU. Uses [Hydra](https://hydra.cc/docs/intro/) for config management.
+- **CIFAR Convnext:** Implement a [ConvNext](https://arxiv.org/abs/2201.03545) model in Equinox, using the built-in `ClassificationExperiment` and training loop to classify CIFAR-10. Supports single CPU/GPU, data-parallel multi-GPU, and multi-host/TPU. Uses [Hydra](https://hydra.cc/docs/intro/) for config management.
 
-- **Adversarial Training:** Write your own `Experiment` class to train a model adversarially for removing bias from Colour-MNIST (based on https://arxiv.org/abs/1812.10352). Uses Haiku to define the base network.
+- **Adversarial Training:** Write custom training steps to train a model adversarially for removing bias from Colour-MNIST (based on https://arxiv.org/abs/1812.10352). Uses Haiku to define the base network.
 
 - **Vmap Ensemble:** Train an ensemble of small neural networks simultaneously on one GPU (inspired by https://willwhitney.com/parallel-training-jax.html).
 
 ## Tutorials
 
-We provide 3 tutorial notebooks, for longer form writing and explanations:
+TODO: move into docs (when created)
+
+We provide 4 tutorial notebooks, for longer form writing and explanations:
 
 - **Design Decisions:** Not really a tutorial, more of an explanation/justification for why Solstice is the way it is.
 
-- **From Flax to Solstice:** Not sold on why Solstice is useful? We provide a demonstration of how research projects end up needing a Solstice-like organisation system and develop it from scratch step-by-step.
-
-- **Library Compatibility:** Solstice is remarkably simple and is trivial to use alongside other JAX libraries. We provide a guide for common cases.
+- **Library Compatibility:** Solstice is remarkably simple and is trivial to use alongside other JAX libraries. We provide a guide for common cases and also demonstrate how to write adaptor layers to make different libraries interchangable.
 
 - **Configuration Management:** The Solstice library is not opinionated about config management and doesn't lock you in to any solution. Nonetheless, it is important to get right because good config management can accelerate your research by allowing faster iteration of ideas. We show how to integrate Solstice into Hydra.
 
