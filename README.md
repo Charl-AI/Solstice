@@ -6,13 +6,13 @@ Solstice is a library for constructing modular and structured deep learning expe
 
 Solstice is in the pre-alpha stage of development, you can expect it to be broken until I get round to releasing version 0. TODO:
 
-[ ] figure out a way to use `dataclasses.replace` with custom `__init__()` constructors.
-[ ] finalise scope and API of package
-[ ] create readthedocs
-[ ] finish implementations
-[ ] finish docs + tutorials
-[ ] create tests
-[ ] release version 0 on PyPI
+- [ ] figure out a way to use `dataclasses.replace` with custom `__init__()` constructors.
+- [ ] finalise scope and API of package
+- [ ] create readthedocs
+- [ ] finish implementations
+- [ ] finish docs + tutorials
+- [ ] create tests
+- [ ] release version 0 on PyPI
 
 ## Getting Started with `solstice.Experiment`
 
