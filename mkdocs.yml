@@ -78,6 +78,13 @@ nav:
   - Full API:
         - 'api/experiment.md'
         - 'api/metrics.md'
+        - 'api/trainer.md'
+        - solstice.compat:
+            - 'api/compat/model.md'
+            - 'api/compat/optimizer.md'
+
+
   - Miscellaneous:
     - 'examples.md'
     - 'config_management.md'
+    - 'contributing.md'
