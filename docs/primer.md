@@ -1,4 +1,4 @@
-# Solstice Primer
+#  Primer - Background and Concepts
 
 Here, we write about the concepts behind Solstice. It is not necessary to understand all of it before getting started, but it might help to understand our design.
 

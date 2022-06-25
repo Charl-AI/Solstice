@@ -1,0 +1,82 @@
+site_name: Solstice
+site_description: Solstice is a library for scaling deep learning experiments in JAX.
+site_author: Charles Jones
+# site_url:
+
+# Theme is based on Equinox docs... imitation is the highest form of flattery :)
+theme:
+  name: "material"
+  features:
+        - navigation.sections
+        - header.autohide
+        - content.code.annotate
+  palette:
+        - scheme: default
+          primary: white
+          accent: amber
+          toggle:
+              icon: material/weather-night
+              name: Switch to dark mode
+        - scheme: slate
+          primary: black
+          accent: amber
+          toggle:
+              icon: material/weather-sunny
+              name: Switch to light mode
+  icon:
+      repo: fontawesome/brands/github
+
+plugins:
+  - search
+  - autorefs
+  - mkdocstrings:
+    handlers:
+      python:
+        selection:
+            inherited_members: true
+        rendering:
+            show_category_heading: true
+            show_root_heading: true
+            show_root_full_path: true
+            show_if_no_docstring: true
+            show_signature_annotations: true
+            separate_signature: true
+            show_source: false
+            members_order: source
+            # docstring_section_style: list
+
+
+repo_url: https://github.com/Charl-AI/Solstice
+repo_name: Charl-AI/Solstice
+
+
+extra_css:
+    - css/style.css
+    - css/material.css
+    - css/mkdocstrings.css
+
+
+markdown_extensions:
+- admonition
+- callouts:
+    strip_period: no
+- pymdownx.emoji
+- pymdownx.magiclink
+- pymdownx.snippets:
+    check_paths: true
+- pymdownx.superfences
+- pymdownx.tabbed:
+    alternate_style: true
+- pymdownx.tasklist
+- toc:
+    permalink: "¤"
+
+nav:
+  - 'index.md'
+  - 'primer.md'
+  - Full API:
+        - 'api/experiment.md'
+        - 'api/metrics.md'
+  - Miscellaneous:
+    - 'examples.md'
+    - 'config_management.md'
