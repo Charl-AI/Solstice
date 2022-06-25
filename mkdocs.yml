@@ -30,20 +30,21 @@ plugins:
   - search
   - autorefs
   - mkdocstrings:
-    handlers:
-      python:
-        selection:
-            inherited_members: true
-        rendering:
-            show_category_heading: true
-            show_root_heading: true
-            show_root_full_path: true
-            show_if_no_docstring: true
-            show_signature_annotations: true
-            separate_signature: true
-            show_source: false
-            members_order: source
-            # docstring_section_style: list
+      handlers:
+        python:
+          selection:
+              inherited_members: true
+          rendering:
+              show_root_heading: true
+              show_root_full_path: true
+              show_if_no_docstring: true
+              show_signature_annotations: true
+              separate_signature: true
+              show_source: false
+              members_order: source
+              line_length: 80
+              # show_category_heading: true
+              # docstring_section_style: list
 
 
 repo_url: https://github.com/Charl-AI/Solstice
