@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Literal, Mapping
+from typing import Any, Mapping
 from functools import partial
 import equinox as eqx
 import dataclasses
@@ -9,9 +9,30 @@ import jax.numpy as jnp
 
 
 class Metrics(eqx.Module, ABC):
-    """Base class for metrics. A Metrics Object handles calculating (intermediate)
-    metrics from model outputs, accumulating (intermediate) metrics over batches, then
-    calculating final metrics from accumulated metrics."""
+    """Base class for metrics. A Metrics Object handles calculating intermediate
+    metrics from model outputs, accumulating them over batches, then
+    calculating final metrics from accumulated metrics. Subclass this class and
+    implement the interface for initialisation, accumulation, and finalisation.
+
+    !!! tip
+        This class doesn't have to handle 'metrics' in the strictest sense. You could
+        implement a `Metrics` class to collect output images for plotting for example.
+
+    !!! example
+        Pseudo code for typical `Metrics` usage:
+
+        ```python
+        metrics = None
+        for batch in dataset:
+            batch_metrics = step(batch)  # step returns a Metrics object
+            metrics = metrics.merge(batch_metrics) if metrics else batch_metrics
+
+            if time_to_log:
+                metrics_dict = metrics.compute()
+                #log your metrics here
+                metrics = None  # reset the object
+        ```
+    """
 
     @abstractmethod
     def __init__(self, *args, **kwargs) -> None:
@@ -24,7 +45,7 @@ class Metrics(eqx.Module, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def compute(self) -> Mapping[str, float]:
+    def compute(self) -> Any:
         """Compute final metrics from accumulated metrics."""
         raise NotImplementedError
 
@@ -35,11 +56,11 @@ def _compute_confusion_matrix(
 ) -> jnp.ndarray:
     """Compute confusion matrix. For internal use in ClassificationMetrics.
     Args:
-        - preds (jnp.ndarray): 1D array of predictions (not one-hot encoded).
-        - labels (jnp.ndarray): 1D array of labels (not one-hot encoded).
-        - num_classes (int, optional): number of classification classes. Defaults to 2.
+        preds (jnp.ndarray): 1D array of predictions (not one-hot encoded).
+        labels (jnp.ndarray): 1D array of labels (not one-hot encoded).
+        num_classes (int, optional): number of classification classes. Defaults to 2.
     Returns:
-        - jnp.ndarray: Confusion matrix, shape (num_classes, num_classes).
+        jnp.ndarray: Confusion matrix, shape (num_classes, num_classes).
     """
     # magic einsum :)
     return jnp.einsum(
@@ -55,11 +76,11 @@ def _compute_metrics_from_cm(confusion_matrix: jnp.ndarray) -> Mapping[str, floa
     `sklearn.metrics.classification_report`. For internal use in ClassificationMetrics.
 
     Args:
-        - confusion_matrix (jnp.ndarray): Confusion matrix, shape
+        confusion_matrix (jnp.ndarray): Confusion matrix, shape
             (num_classes, num_classes).
 
     Returns:
-        - Mapping[str, float]: Dictionary of metrics.
+        Mapping[str, float]: Dictionary of metrics.
     """
     all_labels = jnp.einsum("nd->", confusion_matrix)
     condition_positive = jnp.einsum("nd->n", confusion_matrix)
@@ -101,13 +122,15 @@ def _compute_metrics_from_cm(confusion_matrix: jnp.ndarray) -> Mapping[str, floa
 
 
 class ClassificationMetrics(Metrics):
-    """Basic metrics for multiclass classification tasks, includes:
-    - Average Loss
-    - Accuracy
-    - Prevalence
-    - F1 score
-    - Sensitivity (TPR, recall)
-    - Positive predictive value (PPV, precision)
+    """Basic metrics for multiclass classification tasks.
+
+        Includes: \n
+            - Average Loss \n
+            - Accuracy \n
+            - Prevalence \n
+            - F1 score \n
+            - Sensitivity (TPR, recall) \n
+            - Positive predictive value (PPV, precision)
 
     Accuracy is reported as Top-1 accuracy which is equal to the micro-average of
     precision/recall/f1. Prevalence is reported on a per-class basis. Precision, Recall
@@ -116,48 +139,50 @@ class ClassificationMetrics(Metrics):
 
     *Not* for multi-label classification.
 
-    See https://en.wikipedia.org/wiki/Confusion_matrix for more on confusion matrices.
-    See https://scikit-learn.org/stable/modules/model_evaluation.html for more on
-    multiclass micro/macro/weighted averaging.
+    !!! info
+        See https://en.wikipedia.org/wiki/Confusion_matrix for more on confusion matrices.
+        See https://scikit-learn.org/stable/modules/model_evaluation.html for more on
+        multiclass micro/macro/weighted averaging.
+
     """
 
-    confusion_matrix: jnp.ndarray
-    average_loss: float
-    count: int
-    num_classes: int
+    _confusion_matrix: jnp.ndarray
+    _average_loss: float
+    _count: int
+    _num_classes: int
 
     def __init__(
         self, preds: jnp.ndarray, targets: jnp.ndarray, loss: float, num_classes: int
     ) -> None:
         """
         Args:
-            - preds (jnp.ndarray): Non OH encoded predictions, shape: (batch_size,).
-            - targets (jnp.ndarray): Non OH encoded targets, shape: (batch_size,).
-            - loss (float): Average loss over the batch (scalar).
-            - num_classes (int): Number of classes in classification problem.
+            preds (jnp.ndarray): Non OH encoded predictions, shape: (batch_size,).
+            targets (jnp.ndarray): Non OH encoded targets, shape: (batch_size,).
+            loss (float): Average loss over the batch (scalar).
+            num_classes (int): Number of classes in classification problem.
         """
-        self.confusion_matrix = _compute_confusion_matrix(preds, targets, num_classes)
-        self.average_loss = loss
-        self.count = preds.shape[0]
-        self.num_classes = num_classes
+        self._confusion_matrix = _compute_confusion_matrix(preds, targets, num_classes)
+        self._average_loss = loss
+        self._count = preds.shape[0]
+        self._num_classes = num_classes
 
     def merge(self, other: ClassificationMetrics) -> ClassificationMetrics:
         assert isinstance(other, ClassificationMetrics), (
             "Can only merge ClassificationMetrics object with another"
             f" ClassificationMetrics object, got {type(other)=}"
         )
-        assert self.num_classes == other.num_classes, (
-            f"Can only merge metrics with same num_classes, got {self.num_classes=} and"
-            f" {other.num_classes=}"
+        assert self._num_classes == other._num_classes, (
+            "Can only merge metrics with same num_classes, got"
+            f" {self._num_classes=} and {other._num_classes=}"
         )
         # can simply sum confusion matrices and count
-        new_cm = self.confusion_matrix + other.confusion_matrix
-        new_count = self.count + other.count
+        new_cm = self._confusion_matrix + other._confusion_matrix
+        new_count = self._count + other._count
 
         # average loss is weighted by count from each object
         new_loss = (
-            self.average_loss * self.count + other.average_loss * other.count
-        ) / (self.count + other.count)
+            self._average_loss * self._count + other._average_loss * other._count
+        ) / (self._count + other._count)
 
         return dataclasses.replace(
             self, confusion_matrix=new_cm, average_loss=new_loss, count=new_count
@@ -165,7 +190,7 @@ class ClassificationMetrics(Metrics):
 
     def compute(self) -> Mapping[str, float]:
 
-        metrics = _compute_metrics_from_cm(self.confusion_matrix)
-        metrics["average_loss"] = self.average_loss
+        metrics = _compute_metrics_from_cm(self._confusion_matrix)
+        metrics["average_loss"] = self._average_loss
 
         return metrics
