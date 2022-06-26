@@ -131,13 +131,17 @@ def _compute_metrics_from_cm(confusion_matrix: jnp.ndarray) -> Mapping[str, floa
 
 class ClassificationMetrics(Metrics):
     """Basic metrics for multiclass classification tasks.
+    !!! summary "Metrics included:"
+            - Average Loss
 
-        Includes: \n
-            - Average Loss \n
-            - Accuracy \n
-            - Prevalence \n
-            - F1 score \n
-            - Sensitivity (TPR, recall) \n
+            - Accuracy
+
+            - Prevalence
+
+            - F1 score
+
+            - Sensitivity (TPR, recall)
+
             - Positive predictive value (PPV, precision)
 
     Accuracy is reported as Top-1 accuracy which is equal to the micro-average of
