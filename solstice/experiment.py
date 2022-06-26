@@ -1,3 +1,8 @@
+"""The `Experiment` is at the heart of Solstice. The API is similar to the one loved by
+[PyTorch-Lightning](https://pytorch-lightning.readthedocs.io/en/latest/) users, but we
+do less 'magic' to keep it as transparent as possible. If in doubt, just read the source
+code - it's really short!"""
+
 from __future__ import annotations
 
 import dataclasses
@@ -44,8 +49,8 @@ class Experiment(eqx.Module, ABC):
     Since Experiment is an  `equinox.Module`, it is actually a frozen dataclass,
     this means it is immutable, so training steps do not update parameters in 'self'
     but instead return a new instance of the Experiment with the params replaced. This
-    is a common pattern in functional programming and JAX.
-
+    is a common pattern in functional programming and JAX. Solstice includes the
+    `solstice.replace` utility, which you will find useful for this pattern.
     """
 
     @abstractmethod

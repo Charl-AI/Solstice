@@ -1,3 +1,11 @@
+"""Our Metrics API is similar to the one in
+[CLU](https://github.com/google/CommonLoopUtils), although more sexy because we use
+equinox :) We favour defining one single object for handling all metrics for an
+experiment instead of composing multiple objects into a collection. This is more
+efficient because often we can calculate a battery of metrics from the same intermediate
+results. It is also simpler and easier to reason about.
+"""
+
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Mapping
@@ -155,6 +163,8 @@ class ClassificationMetrics(Metrics):
         self, preds: jnp.ndarray, targets: jnp.ndarray, loss: float, num_classes: int
     ) -> None:
         """
+        Create a ClassificationMetrics object from model predictions and targets.
+
         Args:
             preds (jnp.ndarray): Non OH encoded predictions, shape: (batch_size,).
             targets (jnp.ndarray): Non OH encoded targets, shape: (batch_size,).
