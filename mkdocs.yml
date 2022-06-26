@@ -80,6 +80,7 @@ nav:
         - 'api/experiment.md'
         - 'api/metrics.md'
         - 'api/trainer.md'
+        - 'api/utils.md'
         - solstice.compat:
             - 'api/compat/model.md'
             - 'api/compat/optimizer.md'
@@ -87,5 +88,6 @@ nav:
 
   - Miscellaneous:
     - 'examples.md'
+    - 'parallelism_strategies.md'
     - 'config_management.md'
     - 'contributing.md'
