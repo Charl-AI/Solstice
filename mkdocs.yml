@@ -2,6 +2,7 @@ site_name: Solstice
 site_description: Solstice is a library for scaling deep learning experiments in JAX.
 site_author: Charles Jones
 # site_url:
+edit_uri: ""
 
 # Theme is based on Equinox docs... imitation is the highest form of flattery :)
 theme:
@@ -40,11 +41,9 @@ plugins:
               show_if_no_docstring: true
               show_signature_annotations: true
               separate_signature: true
-              show_source: false
+              show_source: true
               members_order: source
               line_length: 80
-              # show_category_heading: true
-              # docstring_section_style: list
 
 
 repo_url: https://github.com/Charl-AI/Solstice
