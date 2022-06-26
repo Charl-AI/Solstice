@@ -87,7 +87,7 @@ nav:
 
 
   - Miscellaneous:
-    - 'examples.md'
+    - 'example_projects.md'
     - 'parallelism_strategies.md'
     - 'config_management.md'
     - 'contributing.md'
