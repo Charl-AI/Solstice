@@ -4,6 +4,8 @@ site_author: Charles Jones
 # site_url:
 edit_uri: ""
 
+strict: true
+
 # Theme is based on Equinox docs... imitation is the highest form of flattery :)
 theme:
   name: "material"
@@ -72,7 +74,7 @@ markdown_extensions:
     permalink: "¤"
 
 nav:
-  - 'index.md'
+  - Getting Started: 'index.md'
   - 'primer.md'
   - Full API:
         - 'api/experiment.md'

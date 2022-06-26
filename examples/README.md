@@ -1,4 +1,4 @@
-## Examples
+# Examples
 
 We provide X full examples of Solstice usage in different settings (this is aspirational, not all implemented yet!) *TODO: ensure at least one demonstrates multi-GPU data-parallel and multi-host/TPU, consider building this into default `ClassificationExperiment`*:
 
