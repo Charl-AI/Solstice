@@ -60,8 +60,6 @@ extra_css:
 
 markdown_extensions:
 - admonition
-- callouts:
-    strip_period: no
 - pymdownx.emoji
 - pymdownx.magiclink
 - pymdownx.snippets:
