@@ -1,25 +1,24 @@
 {
-    "name": "JAX-Lightning",
+    "name": "Solstice Development container (CPU only)",
     "build": {
-        "dockerfile": "Dockerfile"
+        "dockerfile": "Dockerfile",
+        "context": ".."
     },
-    "runArgs": [
-        "--gpus=all",
-        //  Setting privileged is sometimes necessary to make GPUs visible
-        // https://bbs.archlinux.org/viewtopic.php?id=266915
-        "--privileged"
-    ],
-    "mounts": [
-        // Bind mount data here if necessary e.g.
-        //"source=/vol/biodata/data,target=${containerWorkspaceFolder}/mounted-data,type=bind"
-    ],
     "settings": {
         // This is the venv path set in the Dockerfile
-        "python.defaultInterpreterPath": "/opt/venv/bin/python"
+        "python.defaultInterpreterPath": "/opt/venv/bin/python",
+        "python.languageServer": "Pylance",
+        "python.analysis.typeCheckingMode": "basic",
+        "python.formatting.provider": "black",
+        "python.formatting.blackArgs": [
+            "--experimental-string-processing"
+        ],
+        "editor.formatOnSave": true
     },
     "extensions": [
         "ms-python.python",
         "ms-python.vscode-pylance",
+        "ms-python.black-formatter",
         "github.copilot",
         "github.vscode-pull-request-github",
         "njpwerner.autodocstring"
@@ -27,6 +26,12 @@
     "features": {
         "github-cli": "latest"
     },
+    // prepend the venv to $PATH, removing the need for source /opt/venv/bin/activate
+    "remoteEnv": {
+        "PATH": "/opt/venv/bin:${containerEnv:PATH}"
+    },
     "containerUser": "vscode",
+    // install dependencies, including solstice in 'editable' mode
+    "postCreateCommand": "poetry install",
     "shutdownAction": "none" // don't stop container on exit
 }

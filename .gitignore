@@ -110,6 +110,9 @@ ENV/
 env.bak/
 venv.bak/
 
+# poetry.lock not necessary in library project
+poetry.lock
+
 # Spyder project settings
 .spyderproject
 .spyproject
