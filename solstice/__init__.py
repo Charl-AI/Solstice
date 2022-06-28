@@ -2,11 +2,14 @@
 
 from solstice.experiment import ClassificationExperiment, Experiment
 from solstice.metrics import ClassificationMetrics, Metrics
-from solstice import compat as compat
+from solstice.utils import replace
 
 __all__ = (
-    "ClassificationExperiment",
-    "ClassificationMetrics",
     "Experiment",
+    "ClassificationExperiment",
     "Metrics",
+    "ClassificationMetrics",
+    "replace",
 )
+
+from solstice import compat as compat
