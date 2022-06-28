@@ -51,11 +51,11 @@ trained_exp = exp.train(...)
 
 ```
 
-Notice that we were able to use pure JAX transformations such as `jax.jit` within the class. This is because `solstice.Experiment` is just a subclass of `Equinox.Module`. We explain this further in the NOTE:TODO tutorial, but in general, if you understand JAX/Equinox, you will understand Solstice.
+Notice that we were able to use pure JAX transformations such as `jax.jit` within the class. This is because `solstice.Experiment` is just a subclass of `Equinox.Module`. We explain this further in the [Solstice Primer](primer.md), but in general, if you understand JAX/Equinox, you will understand Solstice.
 
 ## The `solstice.compat` API
 
-Using `solstice.Experiment` and the related utilities (such as `solstice.Metrics`) is likely enough for many projects, but where Solstice really shines is its ability to tie together different libraries in the JAX ecosystem. We provide `solstice.compat`, a library of compatibility layers which give a common interface for models and optimizers (and datasets???) in JAX. Using this API allows users to write `solstice.Experiment`s that are independent of the libraries used for neural network, optimization etc... We use this power to provide a set of plug-and-play Experiments for common use cases.
+Using `solstice.Experiment` and the related utilities (such as `solstice.Metrics`) is likely enough for many projects, but where Solstice really shines is its ability to tie together different libraries in the JAX ecosystem. We provide `solstice.compat`, a library of compatibility layers which give a common interface for neural network and optimization libraries in JAX. Using this API allows users to write `solstice.Experiment`s in pure JAX and reuse them with different frameworks. We use this power to provide a set of plug-and-play Experiments for common use cases.
 
 Here, we show how `solstice.ClassificationExperiment` can be used with the `solstice.compat` API to classify MNIST with any neural network framework in just a few lines:
 
