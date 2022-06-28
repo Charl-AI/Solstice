@@ -1,5 +1,7 @@
 # Contributing
 
+> This page looks nicer in the [docs](https://charl-ai.github.io/Solstice/contributing/)
+
 All contributions are welcome, including questions, issues, feature suggestions, and pull requests. There are two main parts to this codebase: abstract interfaces (such as `solstice.Experiment` and `solstice.Metrics`) and concrete implementations (such as `solstice.ClassificationExperiment` and `solstice.ClassificationMetrics`). Contributing concrete implementations is a good idea because it directly adds functionality for users without changing APIs. Changing the abstractions will require some discussion.
 
 My research focusses on computer vision, so this codebase will likely be biased towards things useful for that. Contributions helpful to other fields, such as NLP, are encouraged :)

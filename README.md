@@ -13,7 +13,7 @@ Solstice is a library for constructing modular and structured deep learning expe
 pip install solstice
 ```
 
-### [Docs]()
+### [Docs](https://charl-ai.github.io/Solstice/)
 
 
 ## Getting Started with `solstice.Experiment`
@@ -61,7 +61,7 @@ trained_exp = exp.train(...)
 
 ```
 
-Notice that we were able to use pure JAX transformations such as `jax.jit` within the class. This is because `solstice.Experiment` is just a subclass of `Equinox.Module`. We explain this further in the [Solstice Primer](primer.md), but in general, if you understand JAX/Equinox, you will understand Solstice.
+Notice that we were able to use pure JAX transformations such as `jax.jit` within the class. This is because `solstice.Experiment` is just a subclass of `Equinox.Module`. We explain this further in the [Solstice Primer](https://charl-ai.github.io/Solstice/primer/), but in general, if you understand JAX/Equinox, you will understand Solstice.
 
 ## The `solstice.compat` API
 
