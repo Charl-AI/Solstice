@@ -7,6 +7,8 @@ My research focusses on computer vision, so this codebase will likely be biased 
 !!! info
     The supported method for installing the Solstice development environment is [VSCode devcontainers](). All you need is to have Docker and the VSCode 'Remote - Containers' extension installed. You can then install this project by running `Remote containers: Clone Repository in Container Volume` from the command palette (alternatively, you could clone the repository normally and run `Remote Containers: Open folder in Container`.
 
+    The default container is CPU only, but you can use GPU by following the instructions in `devcontainer.json` and rebuilding the container.
+
 When making PRs, please ensure any changes are tested and documented. You can run tests by running `pytest`, and you can check the documentation locally by running `mkdocs serve`.
 
 ## Style Guide
