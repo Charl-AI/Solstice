@@ -7,17 +7,17 @@ from __future__ import annotations
 
 import dataclasses
 from abc import ABC, abstractmethod
-from typing import Any, Mapping, Protocol, Tuple
+from typing import TYPE_CHECKING, Any, Mapping, Protocol, Tuple
 
 import equinox as eqx
 import jax
 import jax.numpy as jnp
-import optax
-import tensorflow as tf
-from tqdm import tqdm
-import chex
+
 from solstice.compat.optimizer import Optimizer
 from solstice.metrics import ClassificationMetrics, Metrics
+
+if TYPE_CHECKING:
+    import numpy as np
 
 
 class Experiment(eqx.Module, ABC):
@@ -25,7 +25,7 @@ class Experiment(eqx.Module, ABC):
 
     An Experiment holds all stateful models, optimizers, etc... for a run and
     implements this interface. To make your own experiments, subclass this class and
-    implement the logic for initialisation, training, evaluating, and predicting.
+    implement the logic for initialisation, training, and evaluating.
 
     !!! tip
         This is a subclass of `equinox.Module`, so you are free to use pure JAX
@@ -33,7 +33,7 @@ class Experiment(eqx.Module, ABC):
         filter out static PyTree fields (e.g. with `eqx.filter_jit`).
 
     !!! example
-        Pseudo code for typical `Experiment` usage:
+        Pseudocode for typical `Experiment` usage:
         ```python
 
         exp = MyExperiment(...)  # initialise experiment state
@@ -46,40 +46,144 @@ class Experiment(eqx.Module, ABC):
 
         ```
 
-    Since Experiment is an  `equinox.Module`, it is actually a frozen dataclass,
-    this means it is immutable, so training steps do not update parameters in 'self'
-    but instead return a new instance of the Experiment with the params replaced. This
-    is a common pattern in functional programming and JAX. Solstice includes the
-    `solstice.replace` utility, which you will find useful for this pattern.
+    This class just spefifies a recommended interface for experiment code. You can
+    always create or override methods as you wish. For example it is common to define
+    a `__call__` method to perform inference on a batch of data.
     """
 
     @abstractmethod
     def __init__(self, *args, **kwargs) -> None:
-        """Initialising the experiment. This will likely involve creating models,
-        optimizers, etc..."""
-        raise NotImplementedError()
+        """Initialise the experiment.
+        !!! example
+            Pseudocode implementation for initialising an MNIST classifier with flax
+            and optax:
+            ```python
+            class MNISTExperiment(Experiment):
+                params: Any
+                opt_state: Any
+                opt_apply: Callable
+                model_apply: Callable
+                num_classes: int
 
-    @abstractmethod
-    def __call__(self, *args, **kwargs) -> Any:
-        """Perform inference."""
+                def __init__(self, rng: int, model: flax.nn.Module,
+                    optimizer = optax.GradientTransformation
+                ) -> None:
+                    key = jax.random.PRNGKey(rng)
+                    dummy_batch = jnp.zeros((32, 784))
+                    self.params = model.init(key, dummy_batch)
+                    self.model_apply = model.apply
+                    self.opt = optax.adam(learning_rate=1e-3)
+                    self.opt_state = optimizer.init(self.params)
+                    self.num_classes = 10
+            ```
+        """
         raise NotImplementedError()
 
     @abstractmethod
     def train_step(
-        self, batch: Tuple[jnp.ndarray, ...] | Mapping[str, jnp.ndarray]
+        self, batch: Tuple[np.ndarray, ...] | Mapping[str, np.ndarray]
     ) -> Tuple[Experiment, Any]:
         """A training step takes a batch of data and returns the updated experiment and
-        any auxiliary outputs. Usually, this will be a `solstice.Metrics` object."""
+        any auxiliary outputs (usually a `solstice.Metrics` object).
+
+        !!! tip
+            You will typically want to use `jax.jit` or `eqx.filter_jit` on this method.
+            See the [solstice primer](https://charl-ai.github.io/Solstice/primer/)
+            for more info on filtered transformations.
+
+        !!! example
+            Pseudocode implementation for training a MNIST classifier with flax and
+            optax:
+            ```python
+            class MNISTExperiment(Experiment):
+                @eqx.filter_jit(kwargs=dict(batch=True))
+                def train_step(self, batch: Tuple[np.ndarray, ...]
+                ) -> Tuple[Experiment, Any]:
+
+                imgs, labels = batch
+
+                def loss_fn(params, x, y):
+                    logits = self.model_apply(params, x)
+                    loss = jnp.mean(
+                        optax.softmax_cross_entropy(logits, jax.nn.one_hot(y, self.num_classes))
+                    )
+                    return loss, logits
+
+                (loss, logits), grads = jax.value_and_grad(loss_fn, has_aux=True)(
+                    self.params, imgs, labels
+                )
+
+                updates, new_opt_state = self.opt_apply(grads, self.opt_state, self.params)
+                new_params = optax.apply_updates(self.params, updates)
+
+                preds = jnp.argmax(logits, axis=-1)
+                metrics = MyMetrics(preds, labels, loss)
+
+                return (
+                    solstice.replace(self, params=new_params, opt_state=new_opt_state),
+                    metrics,
+                )
+            ```
+
+        !!! tip
+            You can use the `solstice.replace` function as a way of returning an
+            experiment instance with modified state.
+
+        Args:
+            batch (Tuple[np.ndarray, ...] | Mapping[str, np.ndarray]): Batch of data.
+                Usually, this will be either a tuple of (input, target) arrays or a
+                dictionary, mapping keys to arrays.
+
+        Returns:
+            Tuple[Experiment, Any]: A new instance of the Experiment with the updated
+                state and any auxiliary outputs, such as metrics.
+        """
         raise NotImplementedError()
 
     @abstractmethod
     def eval_step(
-        self, batch: Tuple[jnp.ndarray, ...] | Mapping[str, jnp.ndarray]
+        self, batch: Tuple[np.ndarray, ...] | Mapping[str, np.ndarray]
     ) -> Tuple[Experiment, Any]:
         """An evaluation step (e.g. for validation or testing) takes a batch of data and
         returns the updated experiment and any auxiliary outputs. Usually, this will be
-        a `solstice.Metrics` object. In most evaluation cases, the experiment returned
-        will be unchanged, but in some cases, you may want to update the PRNG etc..."""
+        a `solstice.Metrics` object. Like `train_step()`, you should probably JIT this
+        method.
+
+        !!! tip
+            In most evaluation cases, the experiment returned will be unchanged,
+            the main reason why you would want to modify it is to advance PRNG state.
+
+        !!! example
+            Pseudocode implementation for evaluating a MNIST classifier with flax and
+            optax:
+            ```python
+            class MNISTExperiment(Experiment):
+                @eqx.filter_jit(kwargs=dict(batch=True))
+                def eval_step(self, batch: Tuple[np.ndarray, ...]
+                ) -> Tuple[Experiment, Any]:
+                imgs, labels = batch
+
+                logits = self.model_apply(self.params, imgs)
+                loss = jnp.mean(
+                    optax.softmax_cross_entropy(
+                        logits, jax.nn.one_hot(labels, self.num_classes)
+                    )
+                )
+                preds = jnp.argmax(logits, axis=-1)
+                metrics = MyMetrics(preds, labels, loss)
+                return self, metrics
+            ```
+
+        Args:
+            batch (Tuple[np.ndarray, ...] | Mapping[str, np.ndarray]): Batch of data.
+                Usually, this will be either a tuple of (input, target) arrays or a
+                dictionary, mapping keys to arrays.
+
+        Returns:
+            Tuple[Experiment, Any]: A new instance of the Experiment with the updated
+                state and any auxiliary outputs, such as metrics.
+
+        """
         raise NotImplementedError()
 
     def save_checkpoint(self, checkpoint_dir: str, step: int) -> None:
@@ -96,8 +200,14 @@ class CallablePyTree(Protocol):
     accepting an input array and optional PRNGKey. Just used internally for
     type-hinting models. All models in `equinox.nn` follow this signature."""
 
-    def __call__(self, x: Any, *, key: chex.PRNGKey | None = None) -> Any:
+    def __call__(self, x: Any, *, key: Any | None = None) -> Any:
         raise NotImplementedError()
+
+
+# helper function, based on optax implementation, but in pure JAX to avoid the import
+_softmax_cross_entropy = lambda logits, labels: -jnp.sum(
+    labels * jax.nn.log_softmax(logits, axis=-1), axis=-1
+)
 
 
 class ClassificationExperiment(Experiment):
@@ -142,9 +252,7 @@ class ClassificationExperiment(Experiment):
         def loss_fn(model, x, y):
             logits = model(x)
             loss = jnp.mean(
-                optax.softmax_cross_entropy(
-                    logits, jax.nn.one_hot(y, self._num_classes)
-                )
+                _softmax_cross_entropy(logits, jax.nn.one_hot(y, self._num_classes))
             )
             return loss, logits
 
@@ -166,7 +274,7 @@ class ClassificationExperiment(Experiment):
 
         logits = self._model(x)
         loss = jnp.mean(
-            optax.softmax_cross_entropy(logits, jax.nn.one_hot(y, self._num_classes))
+            _softmax_cross_entropy(logits, jax.nn.one_hot(y, self._num_classes))
         )
         preds = jnp.argmax(logits, axis=-1)
         metrics = ClassificationMetrics(preds, y, loss, self._num_classes)
