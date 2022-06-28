@@ -1,6 +1,6 @@
 # Examples
 
-We provide X full examples of Solstice usage in different settings (this is aspirational, not all implemented yet!) *TODO: ensure at least one demonstrates multi-GPU data-parallel and multi-host/TPU, consider building this into default `ClassificationExperiment`*:
+We provide full examples of Solstice usage in different settings. Each example is runnable as a standalone script. You can set up an environment for running the examples in just a few clicks by using the provided devcontainer; see the [Contributing](https://charl-ai.github.io/Solstice/contributing/) page for more information.
 
 ::: examples.mnist_from_scratch
     selection:
@@ -17,14 +17,3 @@ We provide X full examples of Solstice usage in different settings (this is aspi
     - **Vmap Ensemble:** Learn how to implement parallelism strategies by training an ensemble of small neural networks simultaneously on one GPU (inspired by https://willwhitney.com/parallel-training-jax.html).
 
     - **X Validation:**
-
-
-The examples are all runnable as standalone scripts. We provide a dockerfile to set up a GPU-accelerated environment with Solstice and the other dependencies necessary. This allows you to run the examples easily like so:
-
-```
-docker build ...
-docker run ...
-```
-
-!!! info
-    You will need to have Docker with the nvidia container runtime installed. The Docker image will not build if you do not have a GPU capable of running CUDA 11.3.
