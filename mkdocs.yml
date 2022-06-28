@@ -36,6 +36,9 @@ plugins:
   - search
   - autorefs
   - mkdocstrings:
+      # detect all local changes with `mkdocs serve`, not just ones in docs/
+      watch:
+        - .
       handlers:
         python:
           selection:
