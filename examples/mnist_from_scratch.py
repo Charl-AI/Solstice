@@ -1,6 +1,13 @@
 """The MNIST example demonstrates how to implement everything yourself using just the
-Solstice base classes. In practice, you can do this in far fewer lines by using the
-`solstice.compat` API and the pre-made `solstice.ClassificationExperiment` etc."""
+Solstice base classes and Haiku to define the neural network.
+
+!!! list "This example implements:"
+    - a `solstice.Metrics` class for keeping track of accuracy and loss
+    - a `solstice.Experiment` class for specifying how to train the Haiku model
+    - basic training and evaluation loops for running the experiment
+
+In practice, you can do this in far fewer lines by using the
+`solstice.compat` API with the pre-made `solstice.ClassificationExperiment` etc."""
 
 from __future__ import annotations
 
@@ -11,11 +18,10 @@ import haiku as hk
 import jax
 import jax.numpy as jnp
 import optax
+import solstice
 import tensorflow as tf
 import tensorflow_datasets as tfds
 from tqdm import tqdm
-
-import solstice
 
 # Ensure TF does not see GPU and grab all GPU memory.
 tf.config.set_visible_devices([], device_type="GPU")
@@ -82,7 +88,7 @@ class MNISTClassifier(solstice.Experiment):
     @eqx.filter_jit(kwargs=dict(batch=True))
     def train_step(
         self, batch: Tuple[jnp.ndarray, jnp.ndarray]
-    ) -> Tuple[solstice.Metrics, solstice.Experiment]:
+    ) -> Tuple[solstice.Experiment, solstice.Metrics]:
         imgs, labels = batch
 
         def loss_fn(params, x, y):
@@ -102,10 +108,15 @@ class MNISTClassifier(solstice.Experiment):
         preds = jnp.argmax(logits, axis=-1)
         metrics = MyMetrics(preds, labels, loss)
 
-        return metrics, self.replace(params=new_params, opt_state=new_opt_state)
+        return (
+            solstice.replace(self, params=new_params, opt_state=new_opt_state),
+            metrics,
+        )
 
     @eqx.filter_jit(kwargs=dict(batch=True))
-    def eval_step(self, batch: Tuple[jnp.ndarray, jnp.ndarray]) -> solstice.Metrics:
+    def eval_step(
+        self, batch: Tuple[jnp.ndarray, jnp.ndarray]
+    ) -> Tuple[solstice.Experiment, solstice.Metrics]:
         imgs, labels = batch
 
         logits = self.model_apply(self.params, None, imgs)
@@ -116,11 +127,7 @@ class MNISTClassifier(solstice.Experiment):
         )
         preds = jnp.argmax(logits, axis=-1)
         metrics = MyMetrics(preds, labels, loss)
-        return metrics
-
-    # def replace(self, **changes):
-    #     keys, vals = zip(*changes.items())
-    #     return eqx.tree_at(lambda c: [c.__dict__[key] for key in keys], self, vals)
+        return self, metrics
 
 
 def basic_train(
@@ -132,7 +139,7 @@ def basic_train(
     for epoch in tqdm(range(num_epochs)):
         metrics = None
         for batch in ds.as_numpy_iterator():
-            batch_metrics, experiment = experiment.train_step(batch)
+            experiment, batch_metrics = experiment.train_step(batch)
             metrics = batch_metrics.merge(metrics) if metrics else batch_metrics
         assert metrics is not None
         metrics_dict = metrics.compute()
@@ -150,7 +157,7 @@ def basic_test(
 
     metrics = None
     for batch in tqdm(ds.as_numpy_iterator()):
-        batch_metrics = experiment.eval_step(batch)
+        experiment, batch_metrics = experiment.eval_step(batch)
         metrics = batch_metrics.merge(metrics) if metrics else batch_metrics
     assert metrics is not None
     metrics_dict = metrics.compute()
