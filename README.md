@@ -4,15 +4,7 @@ Solstice is a library for constructing modular and structured deep learning expe
 
 **Why use Solstice in a world with Flax/Haiku/Objax/...?** Solstice is *not* a neural network framework. It is a system for **organising** JAX code, with a small library of sane defaults for common use cases (think [PyTorch Lightning](https://pytorch-lightning.readthedocs.io/en/latest/), but for JAX). The library itself is simple and flexible, leaving most important decisions to the user - we aim to provide high-quality examples to demonstrate the different ways you can use this flexibility.
 
-Solstice is in the pre-alpha stage of development, you can expect it to be broken until I get round to releasing version 0. TODO:
-
-- [ ] figure out a way to use `dataclasses.replace` with custom `__init__()` constructors.
-- [ ] finalise scope and API of package
-- [ ] create readthedocs
-- [ ] finish implementations
-- [ ] finish docs + tutorials
-- [ ] create tests
-- [ ] release version 0 on PyPI
+> Solstice is in the pre-alpha stage of development, you can expect it to be broken until I get round to releasing version 1.
 
 ## Getting Started with `solstice.Experiment`
 
