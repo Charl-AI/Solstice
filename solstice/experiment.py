@@ -42,13 +42,17 @@ class Experiment(eqx.Module, ABC):
             exp, outs = exp.train_step(batch)
             #do anything with the outputs here
 
-        exp.save_checkpoint(...)  # save the trained state of the experiment
+        # exp is just a pytree, so we can save and restore checkpoints like so...
+        equinox.tree_serialise_leaves("checkpoint_0.eqx", exp)
+
 
         ```
 
-    This class just spefifies a recommended interface for experiment code. You can
-    always create or override methods as you wish. For example it is common to define
-    a `__call__` method to perform inference on a batch of data.
+    This class just spefifies a recommended interface for experiment code. Experiments
+    implementing this interface will automatically work with the Solstice training loops
+    You can always create or override methods as you wish and no methods are
+    special-cased. For example it is common to define a `__call__` method to perform
+    inference on a batch of data.
     """
 
     @abstractmethod
@@ -87,9 +91,11 @@ class Experiment(eqx.Module, ABC):
         any auxiliary outputs (usually a `solstice.Metrics` object).
 
         !!! tip
-            You will typically want to use `jax.jit` or `eqx.filter_jit` on this method.
-            See the [solstice primer](https://charl-ai.github.io/Solstice/primer/)
-            for more info on filtered transformations.
+            You will typically want to use `jax.jit`, `jax.pmap`, `eqx.filter_jit`, or
+            `eqx.filter_pmap` on this method. See the
+            [solstice primer](https://charl-ai.github.io/Solstice/primer/)
+            for more info on filtered transformations. You can also read the tutorial on
+            different [parallelism strategies](https://charl-ai.github.io/Solstice/parallelism_strategies/).
 
         !!! example
             Pseudocode implementation for training a MNIST classifier with flax and
@@ -184,14 +190,6 @@ class Experiment(eqx.Module, ABC):
                 state and any auxiliary outputs, such as metrics.
 
         """
-        raise NotImplementedError()
-
-    def save_checkpoint(self, checkpoint_dir: str, step: int) -> None:
-        """Save the current state of the experiment to a checkpoint."""
-        raise NotImplementedError()
-
-    def restore_checkpoint(self, checkpoint_dir: str) -> Experiment:
-        """Restore an experiment from a checkpoint."""
         raise NotImplementedError()
 
 
