@@ -13,6 +13,8 @@ theme:
         - navigation.sections
         - header.autohide
         - content.code.annotate
+        - navigation.indexes
+        - navigation.instant
   palette:
         - scheme: default
           primary: white
@@ -28,6 +30,7 @@ theme:
               name: Switch to light mode
   icon:
       repo: fontawesome/brands/github
+  # custom_dir: "docs/overrides"
 
 plugins:
   - search
@@ -38,14 +41,19 @@ plugins:
           selection:
               inherited_members: true
           rendering:
-              show_root_heading: true
+              # these defaults are to make the reference API look good,
+              # override if necessary for other pages
+              show_root_heading: false
+              show_root_toc_entry: false
               show_root_full_path: true
-              show_if_no_docstring: true
+              show_root_members_full_path: true
+              show_if_no_docstring: false
               show_signature_annotations: true
-              separate_signature: true
+              separate_signature: false
               show_source: true
               members_order: source
               line_length: 80
+              merge_init_into_class: false
 
 
 repo_url: https://github.com/Charl-AI/Solstice
@@ -70,18 +78,15 @@ markdown_extensions:
 - pymdownx.tasklist
 - toc:
     permalink: "¤"
+    toc_depth: 2
 
 nav:
   - Getting Started: 'index.md'
   - 'primer.md'
-  - Full API:
-        - 'api/experiment.md'
-        - 'api/metrics.md'
-        - 'api/trainer.md'
-        - 'api/utils.md'
-        - solstice.compat:
-            - 'api/compat/model.md'
-            - 'api/compat/optimizer.md'
+
+  - API Reference:
+    - solstice: 'api/solstice.md'
+    - solstice.compat: 'api/solstice-compat.md'
 
 
   - Miscellaneous:
