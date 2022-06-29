@@ -35,7 +35,7 @@ theme:
 plugins:
   - search
   - macros:
-      module_name: docs/gen_api
+      module_name: gen_api
       include_dir: solstice
   - autorefs
   - mkdocstrings:
