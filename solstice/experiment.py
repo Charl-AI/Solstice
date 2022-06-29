@@ -193,7 +193,7 @@ class Experiment(eqx.Module, ABC):
         raise NotImplementedError()
 
 
-class CallablePyTree(Protocol):
+class _CallablePyTree(Protocol):
     """A callable PyTree is a JAX PyTree which implements the `__call__` method,
     accepting an input array and optional PRNGKey. Just used internally for
     type-hinting models. All models in `equinox.nn` follow this signature."""
@@ -215,12 +215,12 @@ class ClassificationExperiment(Experiment):
     classes and threshold set at 0.5.
     """
 
-    _model: CallablePyTree
+    _model: _CallablePyTree
     _opt: Optimizer
     _num_classes: int
 
     def __init__(
-        self, model: CallablePyTree, optimizer: Optimizer, num_classes: int
+        self, model: _CallablePyTree, optimizer: Optimizer, num_classes: int
     ) -> None:
         """
         Args:
