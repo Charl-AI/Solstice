@@ -34,6 +34,9 @@ theme:
 
 plugins:
   - search
+  - macros:
+      module_name: docs/gen_api
+      include_dir: solstice
   - autorefs
   - mkdocstrings:
       # detect all local changes with `mkdocs serve`, not just ones in docs/
@@ -57,6 +60,8 @@ plugins:
               members_order: source
               line_length: 80
               merge_init_into_class: false
+              docstring_section_style: list
+
 
 
 repo_url: https://github.com/Charl-AI/Solstice
@@ -81,7 +86,7 @@ markdown_extensions:
 - pymdownx.tasklist
 - toc:
     permalink: "¤"
-    toc_depth: 2
+    toc_depth: 3
 
 nav:
   - Getting Started: 'index.md'
