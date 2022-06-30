@@ -7,17 +7,20 @@ results. It is also simpler and easier to reason about.
 """
 
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Any, Mapping
 from functools import partial
+from typing import Any, Mapping
+
 import equinox as eqx
-import dataclasses
 import jax
 import jax.numpy as jnp
 
+from solstice.utils import replace
+
 
 class Metrics(eqx.Module, ABC):
-    """Base class for metrics. A Metrics Object handles calculating intermediate
+    """Base class for metrics. A Metrics object handles calculating intermediate
     metrics from model outputs, accumulating them over batches, then
     calculating final metrics from accumulated metrics. Subclass this class and
     implement the interface for initialisation, accumulation, and finalisation.
@@ -27,7 +30,7 @@ class Metrics(eqx.Module, ABC):
         implement a `Metrics` class to collect output images for plotting for example.
 
     !!! example
-        Pseudo code for typical `Metrics` usage:
+        Pseudocode for typical `Metrics` usage:
 
         ```python
         metrics = None
@@ -37,24 +40,70 @@ class Metrics(eqx.Module, ABC):
 
             if time_to_log:
                 metrics_dict = metrics.compute()
-                #log your metrics here
+                ... # log your metrics here
                 metrics = None  # reset the object
         ```
     """
 
     @abstractmethod
     def __init__(self, *args, **kwargs) -> None:
-        """Initialise a metrics object from model output, e.g. preds and targets."""
+        """Initialise a metrics object, typically with predictions and targets.
+
+        !!! example
+            Pseudocode for typical `Metrics` initialisation, this example object will
+            keep track of the number of correct predictions and the total number of
+            predictions:
+            ```python
+            class MyMetrics(Metrics):
+                count: int
+                num_correct: int
+                def __init__(self, preds: jnp.ndarray, targets: jnp.ndarray) -> None:
+                    self.count = preds.shape[0]  # assumes batch is first dim
+                    self.num_correct = jnp.sum(preds == targets)
+            ```
+
+        !!! tip
+            In classification settings, the confusion matrix is a useful intermediate
+            result to calculate during initialisation.
+        """
         raise NotImplementedError
 
     @abstractmethod
     def merge(self, other: Metrics) -> Metrics:
-        """Merge two metrics objects, returning a new object."""
+        """Merge two metrics objects, returning a new metrics object.
+
+        !!! example
+            Pseudocode for typical `Metrics` merging, in the example code, we can simply
+            sum the number of correct predictions and the total number of predictions:
+            ```python
+            class MyMetrics(Metrics):
+                def merge(self, other: Metrics) -> Metrics:
+                    new_num_correct = self.num_correct + other.num_correct
+                    new_count = self.count + other.count
+                    return solstice.replace(self,
+                        num_correct=new_num_correct, count=new_count)
+            ```
+        """
         raise NotImplementedError
 
     @abstractmethod
     def compute(self) -> Any:
-        """Compute final metrics from accumulated metrics."""
+        """Compute final metrics from accumulated metrics.
+
+        !!! example
+            Pseudocode for typical `Metrics` finalisation, here we calculate accuracy
+            from the number of correct predictions and the total number of predictions:
+            ```python
+            class MyMetrics(Metrics):
+                def compute(self) -> Mapping[str, float]:
+                    return {'accuracy': self.num_correct / self.count}
+            ```
+
+        !!! tip
+            Typically, you will want to return a dictionary of metrics. Try to put any
+            expensive computations here, not in `__init__`.
+        """
+
         raise NotImplementedError
 
 
@@ -104,8 +153,9 @@ def _compute_metrics_from_cm(confusion_matrix: jnp.ndarray) -> Mapping[str, floa
     ppv = true_positive / predicted_positive
     prevalence = condition_positive / (condition_positive + condition_negative)
 
-    # accurcy is "micro averaged", i.e. sum TP and TN over all n classes
-    accuracy = jnp.einsum("n->", true_positive + true_negative) / all_labels
+    # accuracy is "micro averaged"
+    # By definition, accuracy == micro_f1 == micro_precision == micro_recall
+    accuracy = jnp.mean((true_positive + true_negative) / all_labels)
     f1 = 2 * (ppv * tpr) / (ppv + tpr)
 
     num_classes = confusion_matrix.shape[0]
@@ -152,9 +202,10 @@ class ClassificationMetrics(Metrics):
     *Not* for multi-label classification.
 
     !!! info
-        See https://en.wikipedia.org/wiki/Confusion_matrix for more on confusion matrices.
-        See https://scikit-learn.org/stable/modules/model_evaluation.html for more on
-        multiclass micro/macro/weighted averaging.
+        See https://en.wikipedia.org/wiki/Confusion_matrix for more on confusion
+        matrices and classification metrics.
+        See https://scikit-learn.org/stable/modules/model_evaluation.html#from-binary-to-multiclass-and-multilabel
+        for more on multiclass micro/macro/weighted averaging.
 
     """
 
@@ -198,8 +249,8 @@ class ClassificationMetrics(Metrics):
             self._average_loss * self._count + other._average_loss * other._count
         ) / (self._count + other._count)
 
-        return dataclasses.replace(
-            self, confusion_matrix=new_cm, average_loss=new_loss, count=new_count
+        return replace(
+            self, _confusion_matrix=new_cm, _average_loss=new_loss, _count=new_count
         )
 
     def compute(self) -> Mapping[str, float]:
