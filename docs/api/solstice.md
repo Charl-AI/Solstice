@@ -10,7 +10,16 @@
 
 ## Whole API
 
-{{ list_package_members("solstice")}}
+!!! abstract
+    This is all of Solstice. Everything is accessible through the `solstice.*` namespace.
+    ::: solstice.__all__
+        selection:
+            show_root_heading: true
+            show_root_full_path: true
+            show_root_toc_entry: false
+            show_toc_entry: false
+            show_root_members_full_path: false
+            heading_level: 4
 
 ---
 

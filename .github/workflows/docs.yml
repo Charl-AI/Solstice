@@ -19,6 +19,5 @@ jobs:
       - run: pip install \
               mkdocs-material \
               mkdocstrings[python] \
-              pymdown-extensions \
-              mkdocs-macros-plugin
+              pymdown-extensions
       - run: mkdocs gh-deploy --force
