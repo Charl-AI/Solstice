@@ -50,7 +50,9 @@ class MyMetrics(solstice.Metrics):
             self.average_loss * self.count + other.average_loss * other.count
         ) / (self.count + other.count)
 
-        return eqx.tree_at(lambda m: [m.num_correct, m.count, m.average_loss], self, [new_num_correct, new_count, new_loss])  # type: ignore
+        return solstice.replace(
+            self, num_correct=new_num_correct, count=new_count, average_loss=new_loss
+        )
 
     def compute(self) -> Mapping[str, float]:
         return {
