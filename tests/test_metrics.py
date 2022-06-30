@@ -1,4 +1,3 @@
-import pytest
 import solstice
 import sklearn.metrics as skmetrics
 import jax
@@ -6,6 +5,9 @@ import jax.numpy as jnp
 
 
 def test_classification_metrics():
+    """Test `ClassificationMetrics`. Includes the full use case of initialising, merging
+    over batches, then computing final metrics. We test the results against
+    `sklearn.metrics.classification_report`."""
 
     num_batches = 2
     keys = jax.random.split(jax.random.PRNGKey(0), num_batches)
