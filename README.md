@@ -18,7 +18,7 @@ pip install solstice
 
 ## Getting Started with `solstice.Experiment`
 
-The central abstraction in Solstice is the `solstice.Experiment`. An Experiment is a container for all functions and stateful objects that are relevant to a run. You can create an Experiment by subclassing `solstice.Experiment` and implementing the abstractmethods for initialisation/training/evaluation/inference. Solstice Experiments come with a pre-made training loop which will fit most use cases (you can always overrwrite it with your own).
+The central abstraction in Solstice is the `solstice.Experiment`. An Experiment is a container for all functions and stateful objects that are relevant to a run. You can create an Experiment by subclassing `solstice.Experiment` and implementing the abstractmethods for initialisation, training, and evaluation. Experiments integrate with the `solstice.Trainer` so you can stop writing boilerplate training loops.
 
 
 ```python
@@ -124,28 +124,66 @@ exp.train(...)
 
 ## Incrementally buying-in
 
-Solstice is a library, not a framework, and it is important to us that you have the freedom to use as little or as much of it as you like. Heres an example of a Flax project in 5 different stages of Solstice-ification:
+Solstice is a library, not a framework, and it is important to us that you have the freedom to use as little or as much of it as you like. We give examples of Flax projects in 5 different stages of Solstice-ification:
 
-1 -> 2: Organise training code with `solstice.Experiment`. This replaces the `TrainState` object and serves to better organise your code.
+### Stage 1: organise your training code with `solstice.Experiment`
 
-2 -> 3: Implement metrics calculation with the `solstice.Metrics` interface. This simplifies logging and shifts complexity away from the training loop.
+The `Experiment` object replaces the `TrainState` object and serves to better organise your code. At this stage, the main advantage is that your code is more readable and scalable because you can define different `Experiment`s for different use cases.
 
-3 -> 4: Use the premade `solstice.train` function with callbacks to specify custom behaviour. This gives a balance of flexibility, whilst removing boilerplate code.
-
-4 -> 5: Wrap the model with the `solstice.compat.ClassificationModel` API. This fully decouples the model from the training logic - it is now trivial to mix-and-match models built with different neural network libraries and reuse your `Experiment` code.
-
-TODO: complete example
+Below is an example of an `Experiment` for training a neural network on MNIST.
 
 <table>
 <tr>
-<td> 1. Pure Flax </td> <td> 2. Introduce `solstice.Experiment` </td> <td> 3. Introduce `solstice.Metrics` </td> <td> 4. Introduce `solstice.train` </td> <td> 5. Introduce `solstice.compat` </td>
+<td> Pure Flax </td> <td> Using solstice.Experiment </td>
 </tr>
 <tr>
 <td>
 
 ```python
 
-x
+@struct.dataclass
+class TrainState:
+    apply_fn: Callable = struct.field(pytree_node=False)
+    params: Any
+    tx: optax.GradientTransformation = struct.field(pytree_node=False)
+    opt_state: optax.OptState
+
+    @classmethod
+    def create(cls, params, apply_fn, tx):
+        opt_state = tx.init(params)
+        return cls(apply_fn, params, tx, opt_state)
+
+# assumes we defined MLP as a flax model elsewhere
+def create_initial_state(rng: int) -> train_state.TrainState:
+    key = jax.random.PRNGKey(rng)
+    dummy_x = jnp.zeros((32, 784))
+    net = MLP(features=[200, 200, 10])
+    params = jax.jit(net.init)(key, dummy_x)
+    return train_state.TrainState.create(
+        params=params, apply_fn=net.apply, tx=optax.sgd(4e-3)
+    )
+
+@jax.jit
+def train_step(
+    state: TrainState, batch: Tuple[jnp.ndarray, jnp.ndarray]
+) -> Tuple[TrainState, Mapping[str, Any]]:
+    imgs, labels = batch
+
+    def loss_fn(params):
+        logits = state.apply_fn(params, imgs)
+        loss = jnp.mean(optax.softmax_cross_entropy(logits, jax.nn.one_hot(labels, 10)))
+        return loss, logits
+
+    (loss, logits), grads = jax.value_and_grad(loss_fn, has_aux=True)(state.params)
+
+    updates, new_opt_state = state.tx.update(grads, self.opt_state, self.params)
+    new_params = optax.apply_updates(self.params, updates)
+
+    metrics = {
+        "loss": loss,
+        "accuracy": jnp.mean(jnp.argmax(logits, axis=-1) == labels),
+    }
+    return new_state, metrics
 
 ```
 
@@ -154,34 +192,216 @@ x
 
 ```python
 
-x
+
+class MNISTClassifier(solstice.Experiment):
+    apply_fn: Callable
+    params: Any
+    tx: optax.GradientTransformation
+    opt_state: Any
+
+    def __init__(self, rng: int):
+        key = jax.random.PRNGKey(rng)
+        dummy_x = jnp.zeros((32, 784))
+        net = MLP(features=[200, 200, 10])
+        self.apply_fn = net.apply
+        self.params = jax.jit(net.init)(key, dummy_x)
+        self.tx = optax.sgd(4e-3)
+        self.opt_state = self.tx.init(self.params)
+
+    @eqx.filter_jit(kwargs=dict(batch=True))
+    def train_step(
+        self, batch: Tuple[jnp.ndarray, jnp.ndarray]
+    ) -> Tuple[solstice.Experiment, Mapping[str, Any]]:
+        imgs, labels = batch
+
+        def loss_fn(params):
+            logits = self.apply_fn(params, imgs)
+            loss = jnp.mean(
+                optax.softmax_cross_entropy(logits, jax.nn.one_hot(labels, 10))
+            )
+            return loss, logits
+
+        (loss, logits), grads = jax.value_and_grad(loss_fn, has_aux=True)(self.params)
+        updates, new_opt_state = self.tx.update(grads, self.opt_state, self.params)
+        new_params = optax.apply_updates(self.params, updates)
+
+        metrics = {
+            "loss": loss,
+            "accuracy": jnp.mean(jnp.argmax(logits, axis=-1) == labels),
+        }
+        return (
+            solstice.replace(self, params=new_params, opt_state=new_opt_state),
+            metrics,
+        )
+
+    def eval_step(self, batch):
+        raise NotImplementedError("not bothering with evaluation in this demo")
 
 ```
-</td>
-<td>
 
-```python
-
-x
-
-```
-
-</td>
-<td>
-
-```python
-
-x
-
-```
-</td>
-<td>
-
-```python
-
-x
-
-```
-</td>
 </tr>
 </table>
+
+### Stage 2: implement `solstice.Metrics` for tracking metrics
+
+A `solstice.Metrics` object knows how to calculate and accumulate intermediate results, before computing final metrics. The main advantage is the ability to scalably track lots of metrics with a common interface. By tracking intermediate results and computing at the end, it is easier to handle metrics which are not 'averageable' over batches (e.g. precision).
+
+Below, we show how you might implement a class for handling loss, accuracy, and precision for a binary classification task. Notice that the Solstice solution moves complexity away from the training step and loop. If you wanted to add more metrics, you would only have to change the `Metrics` class.
+
+<table>
+<tr>
+<td> 1. Metrics in pure JAX </td> <td> 2. Using solstice.Metrics </td>
+</tr>
+<tr>
+<td>
+
+```python
+
+@dataclass
+class MyMetrics:
+    tp: int
+    tn: int
+    pp: int
+    loss: float
+    count: int
+
+
+def compute_final_metrics(metrics_list: List[MyMetrics]) -> Mapping[str, Any]:
+    total_tp = sum([m.tp for m in metrics_list])
+    total_tn = sum([m.tn for m in metrics_list])
+    total_pp = sum([m.pp for m in metrics_list])
+    total_loss = sum([m.loss for m in metrics_list])
+    total_count = sum([m.count for m in metrics_list])
+
+    return {
+        "loss": total_loss / total_count,
+        "accuracy": (total_tp + total_tn) / total_count,
+        "precision": total_tp / total_pp
+    }
+
+
+class BinaryClassifier(solstice.Experiment):
+... # other code for initialisation etc...
+
+    @eqx.filter_jit(kwargs=dict(batch=True))
+    def train_step(self, batch):
+        imgs, labels = batch
+
+        def loss_fn(params):
+            ... # do something
+            return loss, logits
+
+        (loss, logits), grads = jax.value_and_grad(loss_fn, has_aux=True)(self.params)
+        new_params, new_opt_state = ... # do some optimization
+
+        preds = jnp.argmax(logits, axis=-1)
+        metrics = MyMetrics(
+            tp = jnp.sum(preds == 1 & labels == 1),
+            tn = jnp.sum(preds == 0 & labels == 0),
+            pp = jnp.sum(preds == 1),
+            loss = loss,
+            count = preds.shape[0]
+        )
+
+        return (
+            solstice.replace(self, params=new_params, opt_state=new_opt_state),
+            metrics,
+        )
+
+
+def train(experiment: BinaryClassifier, ds: tf.data.Dataset, num_epochs: int):
+    for epoch in tqdm(range(num_epochs)):
+        metrics = []
+        for batch in ds.as_numpy_iterator():
+            experiment, batch_metrics = train_step(experiment, batch)
+            metrics.append(batch_metrics)
+
+        metrics = compute_final_metrics(metrics)
+        print(f"Train {epoch=}: {metrics=}")
+        metrics = []
+    return experiment
+
+```
+
+</td>
+<td>
+
+```python
+
+class MyMetrics(solstice.Metrics):
+    tp: int
+    tn: int
+    pp: int
+    loss: float
+    count: int
+
+    def __init__(self, preds, labels, loss):
+        self.tp = jnp.sum(preds == 1 & labels == 1)
+        self.tn = jnp.sum(preds == 0 & labels == 0)
+        self.pp = jnp.sum(preds == 1)
+        self.loss = loss
+        self.count = preds.shape[0] # preds is shape [num_examples,]
+
+    def merge(self, other):
+        new_count = self.count + other.count
+        return solstice.replace(self,
+            tp=self.tp + other.tp,
+            tn=self.tn + other.tn,
+            pp=self.pp + other.pp,
+            loss=self.loss + other.loss,
+            count=self.count+other.count
+            )
+
+    def compute(self):
+        return {
+            "loss": self.loss / self.count,
+            "accuracy": (self.tp + self.tn) / self.count
+            "precision": self.tp / self.pp
+        }
+
+class BinaryClassifier(solstice.Experiment):
+    ... # other code for initialisation etc...
+
+    @eqx.filter_jit(kwargs=dict(batch=True))
+    def train_step(self, batch):
+        imgs, labels = batch
+
+        def loss_fn(params):
+            ... # do something
+            return loss, logits
+
+        (loss, logits), grads = jax.value_and_grad(loss_fn, has_aux=True)(self.params)
+        new_params, new_opt_state = ... # do some optimization
+
+        preds = jnp.argmax(logits, axis=-1)
+        metrics = solstice.ClassificationMetrics(preds, labels, loss, num_classes=10)
+        return (
+            solstice.replace(self, params=new_params, opt_state=new_opt_state),
+            metrics,
+        )
+
+def train(
+    experiment: BinaryClassifier, ds: tf.data.Dataset, num_epochs: int):
+    for epoch in tqdm(range(num_epochs)):
+        metrics = None
+        for batch in ds.as_numpy_iterator():
+            experiment, batch_metrics = experiment.train_step(batch)
+            metrics = batch_metrics.merge(metrics) if metrics is not None else batch_metrics
+        assert metrics is not None
+        print(f"Train {epoch=}: {metrics=}")
+        metrics = None
+    return experiment
+
+
+```
+
+</tr>
+</table>
+
+### Stage 3: use the premade `solstice.Trainer` with `solstice.Callback`s
+
+Training loops are usually boilerplate code. We provide a premade trainer which integrates with a simple and flexible callback system. Any `solstice.Experiment` can be used with the trainer.
+
+### Stage 4: wrap other frameworks with `solstice.compat`
+
+The `solstice.compat` API allows you to write your `Experiment`s in pure JAX, without depending on external libraries such as flax, optax, or haiku. Here, by wrapping your model in the flax compatibility layer, you are able to remove most of your code by using the premade `solstice.ClassificationExperiment`.
