@@ -23,7 +23,12 @@
         "python.formatting.blackArgs": [
             "--experimental-string-processing"
         ],
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "python.testing.pytestArgs": [
+            "tests"
+        ],
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestEnabled": true
     },
     "extensions": [
         "ms-python.python",
