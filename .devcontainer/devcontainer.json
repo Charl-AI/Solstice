@@ -20,7 +20,7 @@
         "python.languageServer": "Pylance",
         "python.analysis.typeCheckingMode": "basic",
         "python.formatting.provider": "black",
-        "python.formatting.blackArgs": [
+        "black-formatter.args": [
             "--experimental-string-processing"
         ],
         "editor.formatOnSave": true,

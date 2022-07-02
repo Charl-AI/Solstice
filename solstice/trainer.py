@@ -290,7 +290,7 @@ def train(
 def test(
     exp: Experiment,
     test_ds: tf.data.Dataset,
-    callbacks: list[Callback],
+    callbacks: list[Callback] | None = None,
     return_outs: bool = False,
 ) -> list[Any] | None:
     """Test a `solstice.Experiment`, using `tf.data.Dataset` for data loading. Supply
@@ -299,8 +299,8 @@ def test(
     Args:
         exp (Experiment): Experiment to test.
         test_ds (tf.data.Dataset): TensorFlow dataset of test data.
-        callbacks (list[Callback]): List of Solstice callbacks. These can execute
-            arbitrary code on certain events, usually for side effects like
+        callbacks (list[Callback] | None, optional): List of Solstice callbacks. These
+            can execute arbitrary code on certain events, usually for side effects like
             logging. See `solstice.Callback`. Defaults to None.
         return_outs (bool, optional): If True, the auxiliary outputs from
             `exp.eval_step()` are accumulated into a list and returned, else this
