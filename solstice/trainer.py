@@ -315,6 +315,10 @@ def test(
         list[Any] | None: List of auxiliary outputs from `exp.eval_step()` if
             return_outs is True, else None.
     """
+    assert callbacks is not None or return_outs is True, (
+        "No callbacks were provided and return_outs is False. This function thus has no"
+        " return vaules or side effects. All it does is heat up the planet :("
+    )
 
     [cb.on_epoch_start(exp, 0) for cb in callbacks] if callbacks is not None else None
 
