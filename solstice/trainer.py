@@ -9,7 +9,7 @@ wandb, TensorBoard(X), CLU, ...)."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
 import jax
 from tqdm import tqdm
@@ -216,13 +216,18 @@ class EarlyStoppingCallback(Callback):
         self.outs = []  # reset for next epoch
 
 
+# type variable for experiment, this is needed because we want the train loop to
+# accept an Experiment subclass and return the *same* type of Experiment subclass.
+ExperimentType = TypeVar("ExperimentType", bound=Experiment)
+
+
 def train(
-    exp: Experiment,
+    exp: ExperimentType,
     num_epochs: int,
     train_ds: tf.data.Dataset,
     val_ds: tf.data.Dataset | None = None,
     callbacks: list[Callback] | None = None,
-) -> Experiment:
+) -> ExperimentType:
     """Train a `solstice.Experiment`, using `tf.data.Dataset` for data loading.
     Supply `solstice.Callback`s to add any additional functionality.
 
