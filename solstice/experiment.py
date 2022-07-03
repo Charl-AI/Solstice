@@ -6,16 +6,10 @@ code - it's really short!"""
 
 from __future__ import annotations
 
-import dataclasses
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Mapping, Protocol, Tuple
+from typing import TYPE_CHECKING, Any, Mapping, Tuple
 
 import equinox as eqx
-import jax
-import jax.numpy as jnp
-
-from solstice.compat.optimizer import Optimizer
-from solstice.metrics import ClassificationMetrics, Metrics
 
 if TYPE_CHECKING:
     import numpy as np
@@ -181,89 +175,3 @@ class Experiment(eqx.Module, ABC):
 
         """
         raise NotImplementedError()
-
-
-class _CallablePyTree(Protocol):
-    """A callable PyTree is a JAX PyTree which implements the `__call__` method,
-    accepting an input array and optional PRNGKey. Just used internally for
-    type-hinting models. All models in `equinox.nn` follow this signature."""
-
-    def __call__(self, x: Any, *, key: Any | None = None) -> Any:
-        raise NotImplementedError()
-
-
-# helper function, based on optax implementation, but in pure JAX to avoid the import
-_softmax_cross_entropy = lambda logits, labels: -jnp.sum(
-    labels * jax.nn.log_softmax(logits, axis=-1), axis=-1
-)
-
-
-class ClassificationExperiment(Experiment):
-    """Pre-made experiment class for basic classification tasks. Performs multiclass
-    classification with softmax cross entropy loss. You can use this class for binary
-    classification if you treat it as a multi-class classification task with two
-    classes and threshold set at 0.5.
-    """
-
-    _model: _CallablePyTree
-    _opt: Optimizer
-    _num_classes: int
-
-    def __init__(
-        self, model: _CallablePyTree, optimizer: Optimizer, num_classes: int
-    ) -> None:
-        """
-        Args:
-            model (CallablePyTree): Model to train. Must take an (unbatched) input
-                array and optional PRNGKey as inputs to it's `__call__` method,
-                returning unbatched, unnormalized vector of logits, shape
-                (num_classes,). An example of a model like this is `equinox.nn.MLP`.
-            optimizer (Optimizer): Solstice Optimizer to use.
-            num_classes (int): Number of classes in the dataset.
-        """
-
-        self._model = model
-        self._opt = optimizer
-        self._num_classes = num_classes
-
-    @eqx.filter_jit
-    def __call__(self, *args, **kwargs) -> Any:
-        logits = self._model(*args, **kwargs)
-        return jnp.argmax(logits, axis=-1)
-
-    @eqx.filter_jit
-    def train_step(
-        self, batch: Tuple[jnp.ndarray, jnp.ndarray]
-    ) -> Tuple[Metrics, Experiment]:
-        x, y = batch
-
-        def loss_fn(model, x, y):
-            logits = model(x)
-            loss = jnp.mean(
-                _softmax_cross_entropy(logits, jax.nn.one_hot(y, self._num_classes))
-            )
-            return loss, logits
-
-        (loss, logits), grads = eqx.filter_value_and_grad(loss_fn, has_aux=True)(
-            self._model, x, y
-        )
-
-        updates, new_opt = self._opt(grads)
-        new_model = eqx.apply_updates(self._model, updates)  # type: ignore
-
-        preds = jnp.argmax(logits, axis=-1)
-        metrics = ClassificationMetrics(preds, y, loss, self._num_classes)
-
-        return metrics, dataclasses.replace(self, model=new_model, opt=new_opt)
-
-    @eqx.filter_jit
-    def eval_step(self, batch: Tuple[jnp.ndarray, jnp.ndarray]) -> Metrics:
-        x, y = batch
-
-        logits = self._model(x)
-        loss = jnp.mean(
-            _softmax_cross_entropy(logits, jax.nn.one_hot(y, self._num_classes))
-        )
-        preds = jnp.argmax(logits, axis=-1)
-        metrics = ClassificationMetrics(preds, y, loss, self._num_classes)
-        return metrics

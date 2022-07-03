@@ -91,7 +91,6 @@ nav:
 
   - API Reference:
     - solstice: 'api/solstice.md'
-    - solstice.compat: 'api/solstice-compat.md'
 
 
   - Miscellaneous:
