@@ -1,13 +1,15 @@
 """The MNIST example demonstrates how to implement everything yourself using just the
 Solstice base classes and Haiku to define the neural network.
 
-!!! list "This example implements:"
-    - a `solstice.Metrics` class for keeping track of accuracy and loss
-    - a `solstice.Experiment` class for specifying how to train the Haiku model
-    - basic training and evaluation loops for running the experiment
+!!! summary
+    This example implements:
 
-In practice, you can do this in far fewer lines by using the
-`solstice.compat` API with the pre-made `solstice.ClassificationExperiment` etc."""
+    - a `solstice.Metrics` class for keeping track of accuracy and loss
+
+    - a `solstice.Experiment` class for specifying how to train the Haiku model
+
+    - basic custom training and evaluation loops for running the experiment
+"""
 
 from __future__ import annotations
 
