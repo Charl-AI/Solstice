@@ -2,6 +2,14 @@
 
 from solstice.experiment import ClassificationExperiment, Experiment
 from solstice.metrics import ClassificationMetrics, Metrics
+from solstice.trainer import (
+    train,
+    test,
+    Callback,
+    CheckpointingCallback,
+    EarlyStoppingCallback,
+    ProfilingCallback,
+)
 from solstice.utils import replace
 
 __all__ = (
@@ -9,6 +17,12 @@ __all__ = (
     "ClassificationExperiment",
     "Metrics",
     "ClassificationMetrics",
+    "Callback",
+    "CheckpointingCallback",
+    "EarlyStoppingCallback",
+    "ProfilingCallback",
+    "train",
+    "test",
     "replace",
 )
 
