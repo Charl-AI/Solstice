@@ -9,6 +9,8 @@ Solstice is a library for constructing modular and structured deep learning expe
 
 ### Installation
 
+First, [install JAX](https://github.com/google/jax#installation), then:
+
 ```bash
 pip install solstice
 ```
@@ -22,14 +24,17 @@ The central abstraction in Solstice is the `solstice.Experiment`. An Experiment 
 
 
 ```python
+from typing import Any, Tuple
 
-import dataclasses
 import jax
 import jax.numpy as jnp
 import solstice
+import tensorflow_datasets as tfds
+
 
 class RandomClassifier(solstice.Experiment):
     """A terrible, terrible classifier for binary class problems :("""
+
     rng_state: Any
 
     def __init__(self, rng: int):
@@ -37,27 +42,35 @@ class RandomClassifier(solstice.Experiment):
 
     def __call__(self, x):
         del x
-        return jax.random.bernoulli(self.rng_state, p=0.5)
+        return jax.random.bernoulli(self.rng_state, p=0.5).astype(jnp.float32)
 
     @jax.jit
-    def train_step(self, batch: Tuple[jnp.ndarray, ...]) -> Tuple[solstice.Metrics, "MNISTClassifier"]:
+    def train_step(
+        self, batch: Tuple[jnp.ndarray, ...]
+    ) -> Tuple["RandomClassifier", solstice.Metrics]:
         x, y = batch
         preds = jax.vmap(self)(x)
+        # use solstice Metrics API for convenient metrics calculation
         metrics = solstice.ClassificationMetrics(preds, y, loss=jnp.nan, num_classes=2)
         new_rng_state = jax.random.split(self.rng_state)[0]
 
-        return metrics, dataclasses.replace(self, rng_state=new_rng_state)
-
+        return solstice.replace(self, rng_state=new_rng_state), metrics
 
     @jax.jit
-    def eval_step(self, batch: Tuple[jnp.ndarray, ...]) -> solstice.Metrics:
+    def eval_step(
+        self, batch: Tuple[jnp.ndarray, ...]
+    ) -> Tuple["RandomClassifier", solstice.Metrics]:
         x, y = batch
         preds = jax.vmap(self)(x)
         metrics = solstice.ClassificationMetrics(preds, y, loss=jnp.nan, num_classes=2)
-        return metrics
+        return self, metrics
 
-exp = MNISTClassifier(42)
-trained_exp = exp.train(...)
+
+train_ds = tfds.load(name="mnist", split="train", as_supervised=True)  # type: Any
+train_ds = train_ds.batch(32).prefetch(1)
+exp = RandomClassifier(42)
+trained_exp = solstice.train(exp, num_epochs=1, train_ds=train_ds)
+
 
 ```
 
