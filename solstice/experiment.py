@@ -1,4 +1,5 @@
-"""The `Experiment` is at the heart of Solstice. The API is similar to the one loved by
+"""The `Experiment` is at the heart of Solstice. The API is similar to the
+`pl.LightningModule` loved by
 [PyTorch-Lightning](https://pytorch-lightning.readthedocs.io/en/latest/) users, but we
 do less 'magic' to keep it as transparent as possible. If in doubt, just read the source
 code - it's really short!"""
@@ -48,9 +49,9 @@ class Experiment(eqx.Module, ABC):
 
         ```
 
-    This class just spefifies a recommended interface for experiment code. Experiments
-    implementing this interface will automatically work with the Solstice training loops
-    You can always create or override methods as you wish and no methods are
+    This class just specifies a recommended interface for experiment code. Experiments
+    implementing this interface will automatically work with the Solstice training
+    loops. You can always create or override methods as you wish and no methods are
     special-cased. For example it is common to define a `__call__` method to perform
     inference on a batch of data.
     """
@@ -98,30 +99,24 @@ class Experiment(eqx.Module, ABC):
             different [parallelism strategies](https://charl-ai.github.io/Solstice/parallelism_strategies/).
 
         !!! example
-            Pseudocode implementation for training a MNIST classifier with flax and
-            optax:
+            Pseudocode implementation of a training step:
             ```python
             class MNISTExperiment(Experiment):
                 @eqx.filter_jit(kwargs=dict(batch=True))
                 def train_step(self, batch: Tuple[np.ndarray, ...]
-                ) -> Tuple[Experiment, Any]:
+                ) -> Tuple[Experiment, solstice.Metrics]:
 
                 imgs, labels = batch
 
                 def loss_fn(params, x, y):
-                    logits = self.model_apply(params, x)
-                    loss = jnp.mean(
-                        optax.softmax_cross_entropy(logits, jax.nn.one_hot(y, self.num_classes))
-                    )
+                    ... # compute loss
                     return loss, logits
 
                 (loss, logits), grads = jax.value_and_grad(loss_fn, has_aux=True)(
                     self.params, imgs, labels
                 )
 
-                updates, new_opt_state = self.opt_apply(grads, self.opt_state, self.params)
-                new_params = optax.apply_updates(self.params, updates)
-
+                new_params, new_opt_state = ... # calculate grads and update params
                 preds = jnp.argmax(logits, axis=-1)
                 metrics = MyMetrics(preds, labels, loss)
 
@@ -160,8 +155,7 @@ class Experiment(eqx.Module, ABC):
             the main reason why you would want to modify it is to advance PRNG state.
 
         !!! example
-            Pseudocode implementation for evaluating a MNIST classifier with flax and
-            optax:
+            Pseudocode implementation of an evaluation step:
             ```python
             class MNISTExperiment(Experiment):
                 @eqx.filter_jit(kwargs=dict(batch=True))
@@ -169,12 +163,8 @@ class Experiment(eqx.Module, ABC):
                 ) -> Tuple[Experiment, Any]:
                 imgs, labels = batch
 
-                logits = self.model_apply(self.params, imgs)
-                loss = jnp.mean(
-                    optax.softmax_cross_entropy(
-                        logits, jax.nn.one_hot(labels, self.num_classes)
-                    )
-                )
+                logits = ... # apply the model e.g. self.apply_fn(imgs)
+                loss = ... # compute loss
                 preds = jnp.argmax(logits, axis=-1)
                 metrics = MyMetrics(preds, labels, loss)
                 return self, metrics
