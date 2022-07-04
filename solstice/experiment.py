@@ -79,9 +79,7 @@ class Experiment(eqx.Module, ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def train_step(
-        self, batch: Tuple[np.ndarray, ...] | Mapping[str, np.ndarray]
-    ) -> Tuple[Experiment, Any]:
+    def train_step(self, batch: Any) -> Tuple[Experiment, Any]:
         """A training step takes a batch of data and returns the updated experiment and
         any auxiliary outputs (usually a `solstice.Metrics` object).
 
@@ -125,9 +123,8 @@ class Experiment(eqx.Module, ABC):
             experiment instance with modified state.
 
         Args:
-            batch (Tuple[np.ndarray, ...] | Mapping[str, np.ndarray]): Batch of data.
-                Usually, this will be either a tuple of (input, target) arrays or a
-                dictionary, mapping keys to arrays.
+            batch (Any): Batch of data. Usually, this will be either a tuple of
+                (input, target) arrays or a dictionary mapping keys to arrays.
 
         Returns:
             Tuple[Experiment, Any]: A new instance of the Experiment with the updated
@@ -136,9 +133,7 @@ class Experiment(eqx.Module, ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def eval_step(
-        self, batch: Tuple[np.ndarray, ...] | Mapping[str, np.ndarray]
-    ) -> Tuple[Experiment, Any]:
+    def eval_step(self, batch: Any) -> Tuple[Experiment, Any]:
         """An evaluation step (e.g. for validation or testing) takes a batch of data and
         returns the updated experiment and any auxiliary outputs. Usually, this will be
         a `solstice.Metrics` object. Like `train_step()`, you should probably JIT this
@@ -165,9 +160,8 @@ class Experiment(eqx.Module, ABC):
             ```
 
         Args:
-            batch (Tuple[np.ndarray, ...] | Mapping[str, np.ndarray]): Batch of data.
-                Usually, this will be either a tuple of (input, target) arrays or a
-                dictionary, mapping keys to arrays.
+            batch (Any): Batch of data. Usually, this will be either a tuple of
+                (input, target) arrays or a dictionary mapping keys to arrays.
 
         Returns:
             Tuple[Experiment, Any]: A new instance of the Experiment with the updated

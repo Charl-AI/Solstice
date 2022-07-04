@@ -75,7 +75,7 @@ class Callback(ABC):
         pass
 
     def on_step_start(
-        self, exp: Experiment, global_step: int, training: bool, batch
+        self, exp: Experiment, global_step: int, training: bool, batch: Any
     ) -> None:
         """Called at the start of each training and validation step, i.e. before the
         batch has been seen.
@@ -88,12 +88,12 @@ class Callback(ABC):
                 it might not be unique.
             training (bool): Whether this is a training or evaluation step. In `test()`
                 loop, this is always False.
-            batch (_type_): Current batch of data for this step.
+            batch (Any): Current batch of data for this step.
         """
         pass
 
     def on_step_end(
-        self, exp: Experiment, global_step: int, training: bool, batch, outs: Any
+        self, exp: Experiment, global_step: int, training: bool, batch: Any, outs: Any
     ) -> None:
         """Called at the end of each training and validation step, i.e. after the batch
         has been seen.
@@ -106,7 +106,7 @@ class Callback(ABC):
                 it might not be unique.
             training (bool): Whether this is a training or evaluation step. In `test()`
                 loop, this is always False.
-            batch (_type_): Current batch of data for this step.
+            batch (Any): Current batch of data for this step.
             outs (Any): Auxiliary outputs from the experiment train/eval step. Usually,
                 this should be a `solstice.Metrics` object.
         """
