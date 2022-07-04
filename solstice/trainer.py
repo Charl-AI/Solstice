@@ -6,7 +6,6 @@ but if they do not suit your needs, you can use them as inspiration to write you
 """
 
 from __future__ import annotations
-from email.policy import default
 
 import logging
 from abc import ABC, abstractmethod
