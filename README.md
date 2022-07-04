@@ -19,18 +19,20 @@ pip install solstice
 Solstice is fully documented, including a full API Reference, as well as tutorials and examples. Below, we provide a bare minimum example for how to get started.
 
 
-## Getting Started with `solstice.Experiment`
+## Getting Started
 
-The central abstraction in Solstice is the `solstice.Experiment`. An Experiment is a container for all functions and stateful objects that are relevant to a run. You can create an Experiment by subclassing `solstice.Experiment` and implementing the abstractmethods for initialisation, training, and evaluation. Experiments integrate with the `solstice.Trainer` so you can stop writing boilerplate training loops.
+The central abstraction in Solstice is the `solstice.Experiment`. An Experiment is a container for all functions and stateful objects that are relevant to a run. You can create an Experiment by subclassing `solstice.Experiment` and implementing the abstractmethods for initialisation, training, and evaluation. Experiments are best used with `solstice.Metrics` for tracking metrics and `solstice.train()` so you can stop writing boilerplate training loops.
 
 
 ```python
 from typing import Any, Tuple
-
+import logging
 import jax
 import jax.numpy as jnp
 import solstice
 import tensorflow_datasets as tfds
+
+logging.basicConfig(level=logging.INFO)
 
 
 class RandomClassifier(solstice.Experiment):
@@ -70,8 +72,10 @@ class RandomClassifier(solstice.Experiment):
 train_ds = tfds.load(name="mnist", split="train", as_supervised=True)  # type: Any
 train_ds = train_ds.batch(32).prefetch(1)
 exp = RandomClassifier(42)
-trained_exp = solstice.train(exp, num_epochs=1, train_ds=train_ds)
-
+# use solstice.train() with callbacks to remove boilerplate code
+trained_exp = solstice.train(
+    exp, num_epochs=1, train_ds=train_ds, callbacks=[solstice.LoggingCallback()]
+)
 
 ```
 
