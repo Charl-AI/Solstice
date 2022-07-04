@@ -8,6 +8,7 @@ from solstice.trainer import (
     Callback,
     CheckpointingCallback,
     EarlyStoppingCallback,
+    LoggingCallback,
     ProfilingCallback,
 )
 from solstice.utils import replace
@@ -19,6 +20,7 @@ __all__ = (
     "Callback",
     "CheckpointingCallback",
     "EarlyStoppingCallback",
+    "LoggingCallback",
     "ProfilingCallback",
     "train",
     "test",
