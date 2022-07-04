@@ -4,6 +4,16 @@ version = "0.0.1"
 description = "Solstice, a library for creating and scaling experiments in JAX."
 authors = ["Charles Jones <cj1917@ic.ac.uk>"]
 license = "MIT"
+readme = "README.md"
+repository = "https://github.com/Charl-AI/Solstice"
+documentation = "https://charl-ai.github.io/Solstice/"
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Information Technology",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.11"
