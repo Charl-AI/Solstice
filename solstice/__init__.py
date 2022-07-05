@@ -11,7 +11,7 @@ from solstice.trainer import (
     LoggingCallback,
     ProfilingCallback,
 )
-from solstice.utils import replace
+from solstice.utils import replace, EarlyStoppingException
 
 __all__ = (
     "Experiment",
@@ -25,4 +25,5 @@ __all__ = (
     "train",
     "test",
     "replace",
+    "EarlyStoppingException",
 )
