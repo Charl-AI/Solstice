@@ -47,3 +47,10 @@ def replace(obj: Module, /, **changes: Any) -> Module:
 
     keys, vals = zip(*changes.items())
     return eqx.tree_at(lambda c: [getattr(c, key) for key in keys], obj, vals)  # type: ignore
+
+
+class EarlyStoppingException(Exception):
+    """A callback can raise this exception `on_epoch_end` to break the training loop
+    early. Useful if you want to write a custom alternative to `EarlyStoppingCallback`."""
+
+    pass

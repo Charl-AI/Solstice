@@ -7,6 +7,7 @@ but if they do not suit your needs, you can use them as inspiration to write you
 
 from __future__ import annotations
 
+import functools
 import logging
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Callable, Literal, TypeVar
@@ -17,6 +18,7 @@ from typing_extensions import TypeGuard
 
 from solstice.experiment import Experiment
 from solstice.metrics import Metrics
+from solstice.utils import EarlyStoppingException
 
 if TYPE_CHECKING:
     import tensorflow as tf
@@ -108,11 +110,11 @@ class Callback(ABC):
 
     def on_step_end(
         self,
+        outs: Any,
         exp: Experiment,
         global_step: int,
         mode: Literal["train", "val", "test"],
         batch: Any,
-        outs: Any,
     ) -> None:
         """Called at the end of each training and validation step, i.e. after the batch
         has been seen.
@@ -194,11 +196,11 @@ class LoggingCallback(Callback):
 
     def on_step_end(
         self,
+        outs: Any,
         exp: Experiment,
         global_step: int,
         mode: Literal["train", "val", "test"],
         batch: Any,
-        outs: Any,
     ) -> None:
         del exp, batch
         assert isinstance(outs, Metrics)
@@ -271,77 +273,108 @@ class ProfilingCallback(Callback):
 
     def on_step_end(
         self,
+        outs: Any,
         exp: Experiment,
         global_step: int,
         mode: Literal["train", "val", "test"],
         batch,
-        outs: Any,
     ) -> None:
         del exp, mode, batch, outs
         if self.steps_to_profile is None or global_step in self.steps_to_profile:
             jax.profiler.stop_trace()
 
 
-# Currently not exposed in the public API. Use the EarlyStoppingCallback to raise this.
-class _EarlyStoppingException(Exception):
-    """A callback can raise this exception `on_epoch_end` to break the training loop
-    early."""
-
-    pass
-
-
 class EarlyStoppingCallback(Callback):
     """Stops training early if a criterion is met. Checks once per epoch (at the end).
-    Internally, this accumulates the auxiliary outputs from each validation step into a
-    list and passes it to the criterion function."""
+    This callback accumulates auxiliary outputs from each validation step and passes
+    them to the criterion function.
+
+    !!! tip
+        If the auxiliary output of `eval_step()` is a `solstice.Metrics` object, we
+        accumulate the outputs efficiently with `.merge()` and pass the final metrics
+        object to the criterion function. If not, the fallback behaviour is to simply
+        accumulate the outputs into a list and pass to the criterion function.
+    """
 
     def __init__(
         self,
-        criterion_fn: Callable[[list[Any]], bool],
-        accumulate_every_n_steps: int | None,
+        criterion_fn: Callable[[Metrics | list[Any]], bool],
+        accumulate_every_n_steps: int = 1,
     ) -> None:
         """Initialize the EarlyStoppingCallback.
 
-        !!! tip
-            It may not be desirable to accumulate all the validation step outputs due
-            to memory constraints (especially if you are outputting images etc.). You
-            can use the `accumulate_every_n_steps` argument to only pass a subset of
-            the validation step outputs to the criterion function.
-
         Args:
-            criterion_fn (Callable[[list[Any]], bool]): Function that takes a list of
-                auxiliary outputs from each step and returns a boolean indicating
-                whether to stop training.
-            accumulate_every_n_steps (int | None, optional): If given, only accumulate
-                auxiliary outputs every nth step. I.e. set to 2 to only keep half, 3 for
-                keeping 1/3, etc. If None is given, accumulate all outputs.
-                Defaults to None.
+            criterion_fn (Callable[[Metrics | list[Any]], bool]): Function that takes
+                the accumulated auxiliary outputs from each step and returns a boolean
+                indicating whether to stop training.
+            accumulate_every_n_steps (int, optional): Accumulate auxiliary outputs every
+                nth step. Set to 2 to only keep half, 3 for keeping 1/3, etc.
+                Defaults to 1.
+
+        !!! example
+            Example criterion function takes the final metrics object, calls .compute()
+            on it to return a dictionary, and stops training if accuracy is > 0.9:
+            ```python
+            lambda criterion_fn metrics: metrics.compute()["accuracy"] > 0.9
+            ```
+            This function would be appropriate if `eval_step()` returns a
+            `ClassificationMetrics` object. If a non-`Metrics` object is returned, you
+            can write a criterion function which accepts a list of `outs` to handle
+            this case.
         """
-        self.outs = []
+        self.accumulated_outs = None
         self.criterion_fn = criterion_fn
         self.accumulate_every_n_steps = accumulate_every_n_steps
 
+    @functools.singledispatchmethod
     def on_step_end(
         self,
+        outs,
         exp: Experiment,
         global_step: int,
         mode: Literal["train", "val", "test"],
         batch,
-        outs: Any,
     ) -> None:
-        del exp, global_step, batch
+        del exp, batch
 
-        if mode == "val":
-            self.outs.append(outs)
+        # fallback implementation is to accumulate outs in list
+        assert not isinstance(self.accumulated_outs, Metrics)
+
+        if mode == "val" and global_step % self.accumulate_every_n_steps == 0:
+            self.accumulated_outs = (
+                self.accumulated_outs.append(outs) if self.accumulated_outs else [outs]
+            )
+
+    @on_step_end.register
+    def _(
+        self,
+        outs: Metrics,
+        exp: Experiment,
+        global_step: int,
+        mode: Literal["train", "val", "test"],
+        batch,
+    ) -> None:
+        del exp, batch
+
+        # accumulates Metrics objects with .merge()
+        assert (
+            isinstance(self.accumulated_outs, Metrics) or self.accumulated_outs is None
+        )
+
+        if mode == "val" and global_step % self.accumulate_every_n_steps == 0:
+            self.accumulated_outs = (
+                outs.merge(self.accumulated_outs) if self.accumulated_outs else outs
+            )
 
     def on_epoch_end(
         self, exp: Experiment, epoch: int, mode: Literal["train", "val", "test"]
     ) -> None:
         del exp, epoch
         if mode == "val":
-            if self.criterion_fn(self.outs):
-                raise _EarlyStoppingException()
-        self.outs = []  # reset for next epoch
+            assert self.accumulated_outs is not None
+            if self.criterion_fn(self.accumulated_outs):
+                raise EarlyStoppingException()
+        self.outs = None  # reset for next epoch
 
 
 # type variable for experiment, this is needed because we want the train loop to
@@ -409,7 +442,7 @@ def train(
                 )
 
                 [
-                    cb.on_step_end(exp, global_step, mode, batch, outs)
+                    cb.on_step_end(outs, exp, global_step, mode, batch)
                     for cb in callbacks
                 ] if callbacks is not None else None
 
@@ -417,7 +450,7 @@ def train(
                 [
                     cb.on_epoch_end(exp, epoch, mode) for cb in callbacks
                 ] if callbacks is not None else None
-            except _EarlyStoppingException:
+            except EarlyStoppingException:
                 logging.info(f"Early stopping at epoch {epoch}")
                 return exp
     return exp
@@ -477,7 +510,7 @@ def test(
         outputs_list.append(outs) if return_outs else None
 
         [
-            cb.on_step_end(exp, global_step, mode, batch, outs) for cb in callbacks
+            cb.on_step_end(outs, exp, global_step, mode, batch) for cb in callbacks
         ] if callbacks is not None else None
 
     [

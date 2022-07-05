@@ -92,11 +92,8 @@ def test_callbacks():
     prof_callback = solstice.ProfilingCallback(
         log_dir="/tmp/solstice_test/profiles", steps_to_profile=[0, 1, 2]
     )
-    es_criterion = (
-        lambda count_metrics: (
-            sum([cm.count for cm in count_metrics]) / len(count_metrics)
-        )
-        >= count_after_one_epoch
+    es_criterion = lambda count_metrics: (
+        count_metrics.compute() >= count_after_one_epoch
     )
     early_stop_callback = solstice.EarlyStoppingCallback(es_criterion, 2)
     logging_callback = solstice.LoggingCallback(log_every_n_steps=1)
