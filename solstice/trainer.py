@@ -145,7 +145,7 @@ class LoggingCallback(Callback):
         instance for this callback to work properly. We raise an AssertionError if this
         is not the case.
 
-    !!! tip
+    !!! note
         There are many different libraries you can use for writing logs (e.g. wandb,
         TensorBoard(X), ...). We offer no opinion on which one you should use. Pass in
         a logging function to use any arbitrary logger.
@@ -214,16 +214,14 @@ class LoggingCallback(Callback):
     def on_epoch_end(
         self, exp: Experiment, epoch: int, mode: Literal["train", "val", "test"]
     ) -> None:
-        if self.log_every_n_steps:
-            del exp, epoch, mode
-            # reset the metrics object to prevent train/val metrics from being mixed
-            self.metrics = None
-        else:
-            # if not logging every n steps, we just log at the end of the epoch
+        del exp
+        # if not logging every n steps, we just log at the end of the epoch
+        if not self.log_every_n_steps:
             assert self.metrics is not None
             final_metrics = self.metrics.compute()
             self.logging_fn(final_metrics, epoch, mode)
-            self.metrics = None
+        # reset the metrics object to prevent train/val metrics from being mixed
+        self.metrics = None
 
 
 class CheckpointingCallback(Callback):
