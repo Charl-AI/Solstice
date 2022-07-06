@@ -259,3 +259,24 @@ The first example works because the `self` PyTree (consisting only of a single f
         ```
 
 Filtered transformations are essentially the only caveat to Equinox, other than that, it's all pure JAX! To get started, you just need to remember to use `equinox.filter_jit(kwargs=dict(batch=True))` when JIT-ing your `train_step()` and `eval_step()`. Once you've got the hang of it, you'll find other convenient uses such as [freezing model parameters](https://docs.kidger.site/equinox/examples/frozen_layer/) and more!
+
+If you prefer the Flax-style approach of specifying static fields up-front and then using pure `jax.jit`, you can avoid filtered transformations entirely by using `equinox.static_field()`:
+
+```python
+from typing import Callable
+import jax
+import equinox as eqx
+
+class ParameterisedOperation(eqx.Module):
+    operation: Callable = eqx.static_field()
+
+    @jax.jit
+    def __call__(self, operand: float) -> float:
+        return self.operation(operand)
+
+
+divide_by_two = ParameterisedOperation(lambda x: x / 2)
+assert divide_by_two(2.0) == 1.0
+# works :)
+
+```
