@@ -38,6 +38,9 @@ scikit-learn = "^1.1.1"
 pytest = "^7.1.2"
 hydra-core = "^1.2.0"
 Pillow = "^9.2.0"
+tensorboard = "^2.9.1"
+tensorboard-plugin-profile = "^2.8.0"
+clu = "^0.0.7"
 
 
 [build-system]
