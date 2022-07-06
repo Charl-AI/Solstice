@@ -13,6 +13,15 @@ We provide full examples of Solstice usage in different settings. Each example i
 
 ---
 
+::: examples.resnet_classification
+    selection:
+            members: false
+            show_root_full_path: false
+            show_root_toc_entry: true
+            show_root_heading: true
+
+---
+
 ::: examples.adversarial_training
     selection:
             members: false
@@ -32,15 +41,6 @@ We provide full examples of Solstice usage in different settings. Each example i
 ---
 
 ::: examples.x_validation
-    selection:
-            members: false
-            show_root_full_path: false
-            show_root_toc_entry: true
-            show_root_heading: true
-
----
-
-::: examples.convnext
     selection:
             members: false
             show_root_full_path: false
