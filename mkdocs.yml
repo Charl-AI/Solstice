@@ -35,6 +35,7 @@ theme:
 plugins:
   - search
   - autorefs
+  - mknotebooks
   - mkdocstrings:
       # detect all local changes with `mkdocs serve`, not just ones in docs/
       watch:
@@ -88,6 +89,7 @@ markdown_extensions:
 nav:
   - Getting Started: 'index.md'
   - 'primer.md'
+  - 'from_flax_to_solstice.ipynb'
 
   - API Reference:
     - solstice: 'api/solstice.md'
