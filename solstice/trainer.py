@@ -23,6 +23,9 @@ from solstice.utils import EarlyStoppingException
 if TYPE_CHECKING:
     import tensorflow as tf
 
+# use "solstice" logger for all output logging
+logger = logging.getLogger("solstice")
+
 
 class Callback(ABC):
     """Base class for callbacks to `solstice.train()` and `solstice.test(). Subclass
@@ -170,10 +173,11 @@ class LoggingCallback(Callback):
                 Python logger (INFO level). Defaults to None.
 
         !!! example
-            The default logging function (used if None is given) logs to Python output
-            with INFO level (notice that the output of `metrics.compute()` must be
-            printable):
+            The default logging function (used if None is given) logs using the built
+            in Python logger, with name "solstice" and INFO level
+            (notice that the output of `metrics.compute()` must be printable):
             ```python
+            logger = logging.getLogger("solstice")
 
             default_logger = lambda metrics, step, mode: logging.info(
                 f"{mode} step {step}: {metrics}"
@@ -184,10 +188,10 @@ class LoggingCallback(Callback):
             your script:
             ```python
             import logging
-            logging.basicConfig(level=logging.INFO)
+            logging.getLogger("solstice").setLevel(logging.INFO)
             ```
         """
-        default_logger = lambda metrics, step, mode: logging.info(
+        default_logger = lambda metrics, step, mode: logger.info(
             f"{mode} step {step}: {metrics}"
         )
         self.logging_fn = logging_fn if logging_fn else default_logger
