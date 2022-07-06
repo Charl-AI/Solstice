@@ -1,11 +1,15 @@
 // Use this development container to get a VSCode window with Solstice+dependencies
-// installed. The default container is CPU only, but you can switch to GPU by changing
-// the dockerfile to "Dockerfile.gpu" and uncommenting the runArgs section.
+// installed. The default container is CPU only, but you can switch to GPU by
+// uncommenting the runArgs and args sections.
 {
     "name": "Solstice Development Container",
     "build": {
         "dockerfile": "Dockerfile", // switch to Dockerfile.gpu for using GPU
-        "context": ".."
+        "context": "..",
+        "args": {
+            // Uncomment this line if you are using GPU
+            // "BASE_IMAGE": "nvidia/cuda:11.3.1-cudnn8-devel-ubuntu20.04"
+        }
     },
     // Uncomment these lines if you are using GPU
     // "runArgs": [
@@ -48,6 +52,6 @@
     },
     "containerUser": "vscode",
     // install dependencies, including solstice in 'editable' mode
-    "postCreateCommand": "poetry install && bash .devcontainer/install_jax_cuda.sh ",
+    "postCreateCommand": "bash .devcontainer/install_packages.sh ",
     "shutdownAction": "none" // don't stop container on exit
 }

@@ -1,5 +1,9 @@
 #! /bin/bash
 
+pip install --upgrade pip
+
+poetry install
+
 if [ -z "$(which nvcc)" ]; then
     echo "CUDA not detected, using CPU version of JAX."
 else
