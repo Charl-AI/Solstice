@@ -3,16 +3,21 @@ to remove bias from Colour MNIST (based on https://arxiv.org/abs/1812.10352). We
 Equinox to define the base network.
 
 !!! summary
-    This example implements:
+    This example demonstrates:
 
-    - a `solstice.Metrics` class for tracking fairness-related metrics
+    - How to implement `solstice.Experiment` for adversarially training a fair
+        classifier.
 
-    - a `solstice.Experiment` class for adversarially training the model
+    - How to implement a custom `solstice.Metrics` class for tracking fairness-related
+        metrics.
 
-    - `solstice.Callback`s for custom logging with `solstice.train()`
+    - How to implement a custom `solstice.Callback` for conditional early stopping.
+
+    - Usage of `solstice.LoggingCallback` with
+        [Weights and Biases](https://docs.wandb.ai/) integration.
 
 !!! warning
-    Not Implemented Yet
+    Aspirational, not implemented yet.
 
 """
 
