@@ -11,7 +11,7 @@ Solstice is a library for constructing modular and structured deep learning expe
 First, [install JAX](https://github.com/google/jax#installation), then:
 
 ```bash
-pip install solstice
+pip install <not yet in PyPI>
 ```
 
 ### [Docs](https://charl-ai.github.io/Solstice/)
