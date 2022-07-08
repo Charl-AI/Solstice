@@ -97,3 +97,26 @@ A `solstice.Metrics` object knows how to calculate and accumulate intermediate r
 ### Stage 3: use the premade `solstice.train()` loop with `solstice.Callback`s
 
 Training loops are usually boilerplate code. We provide premade training and testing loops which integrate with a simple and flexible callback system. This allows you to separate the basic logic of training from customisable side effects such as logging and checkpointing. We provide some useful pre-made callbacks and give examples for how to write your own.
+
+## Our Logos
+
+We have two Solstice logos: the Summer Solstice :sun_with_face: and the Winter Solstice :first_quarter_moon_with_face:. Both were created with [Dall-E mini](https://huggingface.co/spaces/dalle-mini/dalle-mini) (free license) with the following prompt:
+> a logo featuring stonehenge during a solstice
+
+<table width="100%" height="100%">
+<tr>
+</tr>
+<tr>
+<td width="50%" height="50%">
+
+<img src="https://github.com/Charl-AI/Solstice/blob/main/docs/solstice_summer_logo.png?raw=true" alt="Summer Solstice Logo">
+
+</td>
+<td>
+
+<img src="https://github.com/Charl-AI/Solstice/blob/main/docs/solstice_winter_logo.png?raw=true" alt="Winter Solstice Logo">
+
+
+</td>
+</tr>
+</table>

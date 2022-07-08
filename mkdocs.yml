@@ -8,6 +8,8 @@ strict: true
 
 # Theme is based on Equinox docs... imitation is the highest form of flattery :)
 theme:
+  logo: solstice_summer_logo.png
+  favicon: solstice_summer_logo.png
   name: "material"
   features:
         - navigation.sections
