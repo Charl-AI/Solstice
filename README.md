@@ -100,9 +100,6 @@ Training loops are usually boilerplate code. We provide premade training and tes
 
 ## Our Logos
 
-We have two Solstice logos: the Summer Solstice :sun_with_face: and the Winter Solstice :first_quarter_moon_with_face:. Both were created with [Dall-E mini](https://huggingface.co/spaces/dalle-mini/dalle-mini) (free license) with the following prompt:
-> a logo featuring stonehenge during a solstice
-
 <table width="100%" height="100%">
 <tr>
 </tr>
@@ -120,3 +117,6 @@ We have two Solstice logos: the Summer Solstice :sun_with_face: and the Winter S
 </td>
 </tr>
 </table>
+
+We have two Solstice logos: the Summer Solstice :sun_with_face: and the Winter Solstice :first_quarter_moon_with_face:. Both were created with [Dall-E mini](https://huggingface.co/spaces/dalle-mini/dalle-mini) (free license) with the following prompt:
+> a logo featuring stonehenge during a solstice
