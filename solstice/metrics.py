@@ -234,11 +234,11 @@ class ClassificationMetrics(Metrics):
     def merge(self, other: ClassificationMetrics) -> ClassificationMetrics:
         assert isinstance(other, ClassificationMetrics), (
             "Can only merge ClassificationMetrics object with another"
-            f" ClassificationMetrics object, got {type(other)=}"
+            f" ClassificationMetrics object, got {type(other)}"
         )
         assert self._num_classes == other._num_classes, (
             "Can only merge metrics with same num_classes, got"
-            f" {self._num_classes=} and {other._num_classes=}"
+            f" {self._num_classes} and {other._num_classes}"
         )
         # can simply sum confusion matrices and count
         new_cm = self._confusion_matrix + other._confusion_matrix
