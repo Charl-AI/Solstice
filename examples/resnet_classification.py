@@ -33,7 +33,7 @@ import dataclasses
 import functools
 import logging
 import os
-from typing import Literal, Mapping, Tuple
+from typing import Mapping, Tuple
 
 import equinox as eqx
 import haiku as hk
@@ -46,6 +46,7 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 from clu import metric_writers
 from hydra.core.config_store import ConfigStore
+from typing_extensions import Literal
 
 # Ensure TF does not see GPU and grab all GPU memory.
 tf.config.set_visible_devices([], device_type="GPU")
@@ -78,7 +79,7 @@ class ResNetClassifier(solstice.Experiment):
         *,
         rng: int,
     ):
-        assert num_classes > 1, f"Only multiclass (>=2) supported, got {num_classes=}"
+        assert num_classes > 1, f"Only multiclass (>=2) supported, got {num_classes}"
         key = jax.random.PRNGKey(rng)
         dummy_batch = jnp.zeros((1, *input_shape))
         self.model_fns = hk.without_apply_rng(
