@@ -170,7 +170,9 @@ def basic_test(
 
 
 def main():
-    train_ds = tfds.load(name="mnist", split="train", as_supervised=True)
+    train_ds = tfds.load(
+        name="mnist", split="train", as_supervised=True, data_dir="/tmp/data/"
+    )
     assert isinstance(train_ds, tf.data.Dataset)
     preprocess_mnist = lambda x, y: (
         tf.reshape(tf.cast(x, tf.float32) / 255, (784,)),
