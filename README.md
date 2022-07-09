@@ -4,14 +4,14 @@ Solstice is a library for constructing modular and structured deep learning expe
 
 **Why use Solstice in a world with Flax/Haiku/Objax/...?** Solstice is *not* a neural network framework. It is a system for **organising** JAX code, with a small library of sane defaults for common use cases (think [PyTorch Lightning](https://pytorch-lightning.readthedocs.io/en/latest/), but for JAX). The library itself is simple and flexible, leaving most important decisions to the user - we aim to provide high-quality examples to demonstrate the different ways you can use this flexibility.
 
-> Solstice is in the pre-alpha stage of development, you can expect it to be broken until I get round to releasing version 1. It has not yet been uploaded to PyPI, the installation wont work.
+> Solstice is in the alpha stage of development, there may be API changes until we settle on a stable version 1.0.0
 
 ### Installation
 
 First, [install JAX](https://github.com/google/jax#installation), then:
 
 ```bash
-pip install <not yet in PyPI>
+pip install solstice-jax
 ```
 
 ### [Docs](https://charl-ai.github.io/Solstice/)
@@ -83,6 +83,9 @@ Notice that we were able to use pure JAX transformations such as `jax.jit` and `
 
 
 ## Incrementally buying-in
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Charl-AI/Solstice/blob/main/docs/from_flax_to_solstice.ipynb)
+
 
 Solstice is a library, not a framework, and it is important to us that you have the freedom to use as little or as much of it as you like. If are interested in starting using Solstice, but don't know where to begin, here are three steps towards Solstice-ification.
 
