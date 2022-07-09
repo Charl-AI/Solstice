@@ -6,7 +6,7 @@ import equinox as eqx
 Module = TypeVar("Module", bound=eqx.Module)
 
 
-def replace(obj: Module, /, **changes: Any) -> Module:
+def replace(obj: Module, **changes: Any) -> Module:
     """Make out-of-place changes to a Module, returning a new module with changes
     applied. Just a wrapper around `equinox.tree_at`.
 

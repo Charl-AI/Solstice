@@ -148,7 +148,7 @@ def basic_train(
         assert metrics is not None
         metrics_dict = metrics.compute()
         metrics = None
-        print(f"Train {epoch=}: {metrics_dict=}")
+        print(f"Train epoch {epoch}: metrics dict = {metrics_dict}")
 
     return experiment
 
@@ -165,7 +165,7 @@ def basic_test(
         metrics = batch_metrics.merge(metrics) if metrics else batch_metrics
     assert metrics is not None
     metrics_dict = metrics.compute()
-    print(f"Test: {metrics_dict=}")
+    print(f"Test: metrics dict = {metrics_dict}")
     return metrics_dict
 
 

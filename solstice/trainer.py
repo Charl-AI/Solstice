@@ -10,11 +10,11 @@ from __future__ import annotations
 import functools
 import logging
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Literal, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
 import jax
 from tqdm import tqdm
-from typing_extensions import TypeGuard
+from typing_extensions import TypeGuard, Literal
 
 from solstice.experiment import Experiment
 from solstice.metrics import Metrics
@@ -285,98 +285,100 @@ class ProfilingCallback(Callback):
         if self.steps_to_profile is None or global_step in self.steps_to_profile:
             jax.profiler.stop_trace()
 
-
 class EarlyStoppingCallback(Callback):
-    """Stops training early if a criterion is met. Checks once per epoch (at the end).
-    This callback accumulates auxiliary outputs from each validation step and passes
-    them to the criterion function.
+    pass
 
-    !!! tip
-        If the auxiliary output of `eval_step()` is a `solstice.Metrics` object, we
-        accumulate the outputs efficiently with `.merge()` and pass the final metrics
-        object to the criterion function. If not, the fallback behaviour is to simply
-        accumulate the outputs into a list and pass to the criterion function.
-    """
+# class EarlyStoppingCallback(Callback):
+#     """Stops training early if a criterion is met. Checks once per epoch (at the end).
+#     This callback accumulates auxiliary outputs from each validation step and passes
+#     them to the criterion function.
 
-    def __init__(
-        self,
-        criterion_fn: Callable[[Metrics | list[Any]], bool],
-        accumulate_every_n_steps: int = 1,
-    ) -> None:
-        """Initialize the EarlyStoppingCallback.
+#     !!! tip
+#         If the auxiliary output of `eval_step()` is a `solstice.Metrics` object, we
+#         accumulate the outputs efficiently with `.merge()` and pass the final metrics
+#         object to the criterion function. If not, the fallback behaviour is to simply
+#         accumulate the outputs into a list and pass to the criterion function.
+#     """
 
-        Args:
-            criterion_fn (Callable[[Metrics | list[Any]], bool]): Function that takes
-                the accumulated auxiliary outputs from each step and returns a boolean
-                indicating whether to stop training.
-            accumulate_every_n_steps (int, optional): Accumulate auxiliary outputs every
-                nth step. Set to 2 to only keep half, 3 for keeping 1/3, etc.
-                Defaults to 1.
+#     def __init__(
+#         self,
+#         criterion_fn: Callable[[Metrics | list[Any]], bool],
+#         accumulate_every_n_steps: int = 1,
+#     ) -> None:
+#         """Initialize the EarlyStoppingCallback.
 
-        !!! example
-            Example criterion function takes the final metrics object, calls .compute()
-            on it to return a dictionary, and stops training if accuracy is > 0.9:
-            ```python
-            lambda criterion_fn metrics: metrics.compute()["accuracy"] > 0.9
-            ```
-            This function would be appropriate if `eval_step()` returns a
-            `ClassificationMetrics` object. If a non-`Metrics` object is returned, you
-            can write a criterion function which accepts a list of `outs` to handle
-            this case.
-        """
-        self.accumulated_outs = None
-        self.criterion_fn = criterion_fn
-        self.accumulate_every_n_steps = accumulate_every_n_steps
+#         Args:
+#             criterion_fn (Callable[[Metrics | list[Any]], bool]): Function that takes
+#                 the accumulated auxiliary outputs from each step and returns a boolean
+#                 indicating whether to stop training.
+#             accumulate_every_n_steps (int, optional): Accumulate auxiliary outputs every
+#                 nth step. Set to 2 to only keep half, 3 for keeping 1/3, etc.
+#                 Defaults to 1.
 
-    @functools.singledispatchmethod
-    def on_step_end(
-        self,
-        outs,
-        exp: Experiment,
-        global_step: int,
-        mode: Literal["train", "val", "test"],
-        batch,
-    ) -> None:
-        del exp, batch
+#         !!! example
+#             Example criterion function takes the final metrics object, calls .compute()
+#             on it to return a dictionary, and stops training if accuracy is > 0.9:
+#             ```python
+#             lambda criterion_fn metrics: metrics.compute()["accuracy"] > 0.9
+#             ```
+#             This function would be appropriate if `eval_step()` returns a
+#             `ClassificationMetrics` object. If a non-`Metrics` object is returned, you
+#             can write a criterion function which accepts a list of `outs` to handle
+#             this case.
+#         """
+#         self.accumulated_outs = None
+#         self.criterion_fn = criterion_fn
+#         self.accumulate_every_n_steps = accumulate_every_n_steps
 
-        # fallback implementation is to accumulate outs in list
-        assert not isinstance(self.accumulated_outs, Metrics)
+#     @functools.singledispatchmethod
+#     def on_step_end(
+#         self,
+#         outs,
+#         exp: Experiment,
+#         global_step: int,
+#         mode: Literal["train", "val", "test"],
+#         batch,
+#     ) -> None:
+#         del exp, batch
 
-        if mode == "val" and global_step % self.accumulate_every_n_steps == 0:
-            self.accumulated_outs = (
-                self.accumulated_outs.append(outs) if self.accumulated_outs else [outs]
-            )
+#         # fallback implementation is to accumulate outs in list
+#         assert not isinstance(self.accumulated_outs, Metrics)
 
-    @on_step_end.register
-    def _(
-        self,
-        outs: Metrics,
-        exp: Experiment,
-        global_step: int,
-        mode: Literal["train", "val", "test"],
-        batch,
-    ) -> None:
-        del exp, batch
+#         if mode == "val" and global_step % self.accumulate_every_n_steps == 0:
+#             self.accumulated_outs = (
+#                 self.accumulated_outs.append(outs) if self.accumulated_outs else [outs]
+#             )
 
-        # accumulates Metrics objects with .merge()
-        assert (
-            isinstance(self.accumulated_outs, Metrics) or self.accumulated_outs is None
-        )
+#     @on_step_end.register
+#     def _(
+#         self,
+#         outs: Metrics,
+#         exp: Experiment,
+#         global_step: int,
+#         mode: Literal["train", "val", "test"],
+#         batch,
+#     ) -> None:
+#         del exp, batch
 
-        if mode == "val" and global_step % self.accumulate_every_n_steps == 0:
-            self.accumulated_outs = (
-                outs.merge(self.accumulated_outs) if self.accumulated_outs else outs
-            )
+#         # accumulates Metrics objects with .merge()
+#         assert (
+#             isinstance(self.accumulated_outs, Metrics) or self.accumulated_outs is None
+#         )
 
-    def on_epoch_end(
-        self, exp: Experiment, epoch: int, mode: Literal["train", "val", "test"]
-    ) -> None:
-        del exp, epoch
-        if mode == "val":
-            assert self.accumulated_outs is not None
-            if self.criterion_fn(self.accumulated_outs):
-                raise EarlyStoppingException()
-        self.outs = None  # reset for next epoch
+#         if mode == "val" and global_step % self.accumulate_every_n_steps == 0:
+#             self.accumulated_outs = (
+#                 outs.merge(self.accumulated_outs) if self.accumulated_outs else outs
+#             )
+
+#     def on_epoch_end(
+#         self, exp: Experiment, epoch: int, mode: Literal["train", "val", "test"]
+#     ) -> None:
+#         del exp, epoch
+#         if mode == "val":
+#             assert self.accumulated_outs is not None
+#             if self.criterion_fn(self.accumulated_outs):
+#                 raise EarlyStoppingException()
+#         self.outs = None  # reset for next epoch
 
 
 # type variable for experiment, this is needed because we want the train loop to
