@@ -1,0 +1,864 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Solstice is a library for scaling deep learning experiments in JAX.">
+      
+      
+        <meta name="author" content="Charles Jones">
+      
+      
+      <link rel="icon" href="../solstice_summer_logo.png">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.9">
+    
+    
+      
+        <title>Primer - Background and Concepts - Solstice</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.1d29e8d0.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../css/style.css">
+    
+      <link rel="stylesheet" href="../css/material.css">
+    
+      <link rel="stylesheet" href="../css/mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../css/ansi-colours.css">
+    
+      <link rel="stylesheet" href="../css/jupyter-cells.css">
+    
+      <link rel="stylesheet" href="../css/pandas-dataframe.css">
+    
+    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="amber">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#primer-background-and-concepts" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Solstice" class="md-header__button md-logo" aria-label="Solstice" data-md-component="logo">
+      
+  <img src="../solstice_summer_logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Solstice
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Primer - Background and Concepts
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Charl-AI/Solstice" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Charl-AI/Solstice
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Solstice" class="md-nav__button md-logo" aria-label="Solstice" data-md-component="logo">
+      
+  <img src="../solstice_summer_logo.png" alt="logo">
+
+    </a>
+    Solstice
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Charl-AI/Solstice" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Charl-AI/Solstice
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Getting Started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Primer - Background and Concepts
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Primer - Background and Concepts
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-problem-coupling-in-ml-research-code" class="md-nav__link">
+    The Problem: coupling in ML research code
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-work-why-solstice" class="md-nav__link">
+    Related Work / Why Solstice?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-key-idea-immutable-classes-in-python" class="md-nav__link">
+    The key idea: immutable classes in Python
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#equinox-and-filtered-transformations" class="md-nav__link">
+    Equinox and filtered transformations
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../from_flax_to_solstice/" class="md-nav__link">
+        From flax to solstice
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      
+      
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_4">
+          API Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="API Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          API Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/solstice/" class="md-nav__link">
+        solstice
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+      
+      
+      
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_5">
+          Miscellaneous
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Miscellaneous" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Miscellaneous
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../example_projects/" class="md-nav__link">
+        Examples
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parallelism_strategies/" class="md-nav__link">
+        Parallelism Strategies
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-problem-coupling-in-ml-research-code" class="md-nav__link">
+    The Problem: coupling in ML research code
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-work-why-solstice" class="md-nav__link">
+    Related Work / Why Solstice?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-key-idea-immutable-classes-in-python" class="md-nav__link">
+    The key idea: immutable classes in Python
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#equinox-and-filtered-transformations" class="md-nav__link">
+    Equinox and filtered transformations
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+
+
+<h1 id="primer-background-and-concepts">Primer - Background and Concepts<a class="headerlink" href="#primer-background-and-concepts" title="Permanent link">¤</a></h1>
+<p>Here, we write about the concepts behind Solstice. It is not necessary to understand all of it before getting started, but it might help to understand our design.</p>
+<h2 id="the-problem-coupling-in-ml-research-code">The Problem: coupling in ML research code<a class="headerlink" href="#the-problem-coupling-in-ml-research-code" title="Permanent link">¤</a></h2>
+<p>In machine learning projects, you generally have at least four main parts of your code:</p>
+<ul>
+<li>model</li>
+<li>dataset</li>
+<li>training strategy (i.e. optimization, train/eval step logic, metrics calculation)</li>
+<li>training/testing loops (including logging, checkpointing etc...)</li>
+</ul>
+<p>In many research projects, it is helpful to be able to swap out any of these parts on a whim (ideally, just by changing your config files). In practice, it follows that <strong>the better you can decouple these four parts of your code, the faster you can iterate your experiments.</strong></p>
+<p>Much attention is paid to the four components individually, but many researchers then just throw everything together haphazardly. It can require quite a significant engineering effort to properly decouple all the components, so most people don't bother. Wouldn't it be great if there was a standard way of organising your code to rapidly scale and iterate experiments...</p>
+<h2 id="related-work-why-solstice">Related Work / Why Solstice?<a class="headerlink" href="#related-work-why-solstice" title="Permanent link">¤</a></h2>
+<p>We are not the first people to notice the usefulness of a well-engineered experiment library for deep learning. PyTorch Lightning has filled this niche for PyTorch and Sonnet/Keras have done the same for TensorFlow. In JAX, however, there is currently a cambrian explosion of libraries, e.g. Jaxline, Scenic, Objax, Elegy, CLU. All of these works are excellent, but they each have pros and cons.</p>
+<p>Libraries such as Jaxline, Objax, and Scenic are more 'framework-ish' - they ask you to do things their way and in return they do a lot for you. The natural tradeoff with this style of library is that you are locked in to their entire ecosystem which can result in a lack of flexibility. Of these, Elegy is the most closely related to Solstice due to its everything-is-a-pytree approach, however, where Elegy aims to be Keras-like, we aim to be lighter-weight. In Solstice, we leave nearly everything to the user and have incremental buy-in as a top design priority.</p>
+<p>CLU (for Flax) is also closely related, with Solstice having a similar Metrics API, as well as a similar philosophy of providing flexible utilities for common use cases. Surprisingly, Flax itself comes quite close to Solstice with its <code>flax.training.TrainState</code> concept. This is an object which holds experiment state with related functions and, taken to the extreme, can end up looking very similar to a <code>solstice.Experiment</code>.</p>
+<p>Equinox is the foundation of this project and is an elegant library for 'callable pytrees' in JAX (we explain this further below). Where Equinox strives to be as general as possible, we offer opinions about how to structure deep learning experiments. Solstice is a small library, implemented entirely in pure JAX+Equinox. Like Equinox, the simplicity of Solstice is its selling point.</p>
+<h2 id="the-key-idea-immutable-classes-in-python">The key idea: immutable classes in Python<a class="headerlink" href="#the-key-idea-immutable-classes-in-python" title="Permanent link">¤</a></h2>
+<p>In object-oriented code, classes encapsulate both state and transformations on that state. Crucially, the state is mutable, so calling a method might return nothing but alter the object's state. This is a <em>side effect</em>. In functional programming, side effects are avoided by making state immutable, so instead of calling a method to update an object's state, you could pass the object to a pure function, returning a new object with the altered state. This is generally an easier paradigm to reason about and immutability is also needed in JAX for XLA to work its magic.</p>
+<p>This is all great, but Python is not <em>really</em> designed for the functional paradigm so it is difficult to fully decouple all the parts of your code. Type hinting functions with <code>Protocols</code> can get you surprisingly far, but at some point you will probably want to achieve some level of encapsulation and use abstract base classes to get dependency inversion.</p>
+<p>The approach we take in Solstice is to use immutable dataclasses to try to get the best of both worlds, the code below shows how you would implement a simple counter in each of the paradigms.</p>
+<table>
+<tr>
+<td> OO-Style </td> <td> Functional-Style </td> <td> Solstice/Equinox-Style </td>
+</tr>
+<tr>
+<td>
+
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">OOPCounter</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="n">initial_value</span>
+
+    <span class="k">def</span> <span class="nf">increment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="c1"># &#39;initialise&#39; the OO counter</span>
+<span class="n">counter</span> <span class="o">=</span> <span class="n">OOPCounter</span><span class="p">()</span>
+<span class="k">assert</span> <span class="n">counter</span><span class="o">.</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span>
+<span class="n">start_id</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span>
+
+
+<span class="c1"># &#39;apply&#39; the increment method</span>
+<span class="n">counter</span><span class="o">.</span><span class="n">increment</span><span class="p">()</span>
+<span class="k">assert</span> <span class="n">counter</span><span class="o">.</span><span class="n">count</span> <span class="o">==</span> <span class="mi">1</span>
+<span class="n">end_id</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">start_id</span> <span class="o">==</span> <span class="n">end_id</span>
+</code></pre></div>
+
+</td>
+<td>
+
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">increment_fn</span><span class="p">(</span><span class="n">current_value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">current_value</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="c1"># &#39;initialise&#39; the functional counter</span>
+<span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">assert</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span>
+<span class="n">start_id</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+
+
+<span class="c1"># &#39;apply&#39; the increment func</span>
+<span class="n">count</span> <span class="o">=</span> <span class="n">increment_fn</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">1</span>
+<span class="n">end_id</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">start_id</span> <span class="o">!=</span> <span class="n">end_id</span>
+</code></pre></div>
+</td>
+<td>
+
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">dataclasses</span>
+
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">SolsticeStyleCounter</span><span class="p">:</span>
+    <span class="n">count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">increment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SolsticeStyleCounter&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># &#39;initialise&#39; the SolsticeStyleCounter</span>
+<span class="n">counter</span> <span class="o">=</span> <span class="n">SolsticeStyleCounter</span><span class="p">()</span>
+<span class="k">assert</span> <span class="n">counter</span><span class="o">.</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span>
+<span class="n">start_id</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span>
+
+<span class="c1"># &#39;apply&#39; the increment method, returning a new state object</span>
+<span class="n">counter</span> <span class="o">=</span> <span class="n">counter</span><span class="o">.</span><span class="n">increment</span><span class="p">()</span>
+<span class="k">assert</span> <span class="n">counter</span><span class="o">.</span><span class="n">count</span> <span class="o">==</span> <span class="mi">1</span>
+<span class="n">end_id</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">start_id</span> <span class="o">!=</span> <span class="n">end_id</span>
+</code></pre></div>
+
+</td>
+</tr>
+</table>
+
+<p>Notice that the Solstice style counter did not mutate its state, it returned a new instance of itself with the new state. The great thing about this pattern is that by keeping our data structures immutable, we get to keep the readability and XLA optimization advantages that come with it and we also get all the power of Python classes and OO-ish design patterns.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The examples above use <code>dataclasses.replace</code> to perform out-of-place updates. This is a limited solution because it breaks when custom <code>__init__()</code> constructors are defined. Fortunately, Equinox has solved this problem with <code>equinox.tree_at</code>; Solstice provides <code>solstice.replace</code>, a wrapped version of this function matching the <code>dataclasses.replace</code> syntax.</p>
+<p>See <a href="https://github.com/patrick-kidger/equinox/issues/120">https://github.com/patrick-kidger/equinox/issues/120</a> for more details.</p>
+</div>
+<p>In practice, in machine learning, this means we can replace the common init/apply pure functions with methods in a frozen dataclass (usually <code>__init__()</code>, and <code>__call__()</code>). There is also one final matter to take care of... JAX only operates on PyTrees and doesn't know how to deal with dataclasses. This is why we build Solstice on top of Equinox, because an <code>equinox.Module</code> is just a dataclass which is registered as a PyTree.</p>
+<p>This is a powerful paradigm, and it allows us to trivially do things which are considerably more difficult in Flax/Haiku, like specifying common interfaces for models using abstract base classes:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">equinox</span> <span class="k">as</span> <span class="nn">eqx</span>
+<span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
+
+<span class="k">class</span> <span class="nc">EncoderDecoderModel</span><span class="p">(</span><span class="n">eqx</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Encoder-Decoder models (e.g. VAEs) implement this interface.&quot;&quot;&quot;</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialise model parameters.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Encode the input data into a latent representation.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Decode the latent representation.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</code></pre></div>
+<p>All classes in Solstice (except the training loop ones) inherit from <code>equinox.Module</code>. To get started, your mental model can simply be that an <code>equinox.Module</code> is a frozen dataclass that JAX can interpret, although it helps to understand the ideas behind Equinox a bit.</p>
+<h2 id="equinox-and-filtered-transformations">Equinox and filtered transformations<a class="headerlink" href="#equinox-and-filtered-transformations" title="Permanent link">¤</a></h2>
+<p><em>Filtered transformations are explained fully in the <a href="https://docs.kidger.site/equinox/">Equinox Docs</a>, but we include a quick primer here for completeness.</em></p>
+<p>When we use Equinox to create class-style PyTrees, we are able to attach things to the PyTree that JAX function transformations don't know how to interpret. For example, you might store a callable, like your model's <code>apply()</code> function in a <code>solstice.Experiment</code>. Now, if you try to <code>jax.jit</code> a method in the experiment which takes <code>self</code> as a parameter, JAX with throw an error because it doesn't know how to JIT with callables as inputs to the function (usually, you would have to specify the argument as static). Equinox gets around this problem with filtered transformations, which involve splitting the PyTree into a 'static' part and a 'parameter' part and then reassembling the PyTree after the transformation. This is an elegant way of solving the problem and is surprisingly powerful, because PyTrees can be filtered with arbitrary criteria (by default, <code>jnp.array</code>s are treated as parameters and everything else is treated as static). Here are some examples to get a feel for it:</p>
+<table>
+<tr>
+<td> Works </td> <td> Breaks </td> <td> Works </td>
+</tr>
+<tr>
+<td>
+
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">jax</span>
+<span class="kn">import</span> <span class="nn">equinox</span> <span class="k">as</span> <span class="nn">eqx</span>
+
+
+<span class="k">class</span> <span class="nc">Exponentiate</span><span class="p">(</span><span class="n">eqx</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="n">exponent</span><span class="p">:</span> <span class="nb">float</span>
+
+    <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">base</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">exponent</span>
+
+
+<span class="n">square</span> <span class="o">=</span> <span class="n">Exponentiate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">square</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">==</span> <span class="mf">4.0</span>
+<span class="c1"># Works :)</span>
+</code></pre></div>
+
+</td>
+<td>
+
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">import</span> <span class="nn">jax</span>
+<span class="kn">import</span> <span class="nn">equinox</span> <span class="k">as</span> <span class="nn">eqx</span>
+
+<span class="k">class</span> <span class="nc">ParameterisedOperation</span><span class="p">(</span><span class="n">eqx</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="n">Callable</span>
+
+    <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span>
+
+
+<span class="n">divide_by_two</span> <span class="o">=</span> <span class="n">ParameterisedOperation</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">divide_by_two</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">==</span> <span class="mf">1.0</span>
+<span class="c1"># TypeError: Argument &lt;function &lt;lambda&gt;...&gt; is not a valid JAX type.</span>
+</code></pre></div>
+
+</td>
+<td>
+
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">import</span> <span class="nn">jax</span>
+<span class="kn">import</span> <span class="nn">equinox</span> <span class="k">as</span> <span class="nn">eqx</span>
+
+<span class="k">class</span> <span class="nc">ParameterisedOperation</span><span class="p">(</span><span class="n">eqx</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="n">Callable</span>
+
+    <span class="nd">@eqx</span><span class="o">.</span><span class="n">filter_jit</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">eqx</span><span class="o">.</span><span class="n">is_array_like</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span>
+
+
+<span class="n">divide_by_two</span> <span class="o">=</span> <span class="n">ParameterisedOperation</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">divide_by_two</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">==</span> <span class="mf">1.0</span>
+<span class="c1"># works :)</span>
+</code></pre></div>
+</td>
+</tr>
+</table>
+
+<p>The first example works because the <code>self</code> PyTree (consisting only of a single float) is JIT-able by JAX, so we can safely JIT the <code>__call__()</code> method. In the second example, however, the PyTree contains a Callable, which JAX does not know how to JIT. This is then fixed in the third example, where <code>eqx.filter_jit</code> automatically specifies the Callable as static.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Notice that we used <code>eqx.is_array_like</code> as the filtering criterion. This is because the <code>eqx.filter_jit</code> default is to only trace <code>jnp.array</code>s, so the <code>float</code> operand would have been specified as static. This would have caused the function to recompile every time the operand changes.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you are not sure whether your code is recompiling, put a <code>print("compiling")</code> statement in your code. Side effects such as printing are only executed during compilation. Ideally, the statement will only be printed once.</p>
+</div>
+<p>The most common place for this recompilation bug to occur is with the batch argument to <code>train_step()</code> and <code>eval_step()</code> in <code>solstice.Experiment</code>. Fortunately, this this bug is easy to catch because your performance will either be noticably poor, or you'll get errors for using your model with concrete values.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>Pseudo code for avoiding recompilation of <code>train_step()</code></p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">MyExperiment</span><span class="p">(</span><span class="n">solstice</span><span class="o">.</span><span class="n">Experiment</span><span class="p">):</span>
+    <span class="o">...</span>
+
+    <span class="c1"># always trace &quot;batch&quot; kwarg. eqx.filter_jit(default=eqx.is_array_like) would also work</span>
+    <span class="nd">@eqx</span><span class="o">.</span><span class="n">filter_jit</span><span class="p">(</span><span class="n">kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">batch</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">train_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="o">...</span>
+</code></pre></div>
+</div>
+</div>
+<p>Filtered transformations are essentially the only caveat to Equinox, other than that, it's all pure JAX! To get started, you just need to remember to use <code>equinox.filter_jit(kwargs=dict(batch=True))</code> when JIT-ing your <code>train_step()</code> and <code>eval_step()</code>. Once you've got the hang of it, you'll find other convenient uses such as <a href="https://docs.kidger.site/equinox/examples/frozen_layer/">freezing model parameters</a> and more!</p>
+<p>If you prefer the Flax-style approach of specifying static fields up-front and then using pure <code>jax.jit</code>, you can avoid filtered transformations entirely by using <code>equinox.static_field()</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">import</span> <span class="nn">jax</span>
+<span class="kn">import</span> <span class="nn">equinox</span> <span class="k">as</span> <span class="nn">eqx</span>
+
+<span class="k">class</span> <span class="nc">ParameterisedOperation</span><span class="p">(</span><span class="n">eqx</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">eqx</span><span class="o">.</span><span class="n">static_field</span><span class="p">()</span>
+
+    <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span>
+
+
+<span class="n">divide_by_two</span> <span class="o">=</span> <span class="n">ParameterisedOperation</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">divide_by_two</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">==</span> <span class="mf">1.0</span>
+<span class="c1"># works :)</span>
+</code></pre></div>
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href=".." class="md-footer__link md-footer__link--prev" aria-label="Previous: Getting Started" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Getting Started
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../from_flax_to_solstice/" class="md-footer__link md-footer__link--next" aria-label="Next: From flax to solstice" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              From flax to solstice
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "header.autohide", "content.code.annotate", "navigation.indexes", "navigation.instant"], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.6c7ad80a.min.js"></script>
+      
+    
+  </body>
+</html>
