@@ -100,5 +100,4 @@ nav:
   - Miscellaneous:
     - 'example_projects.md'
     - 'parallelism_strategies.md'
-    - 'config_management.md'
     - 'contributing.md'
