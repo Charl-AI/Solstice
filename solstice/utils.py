@@ -49,6 +49,15 @@ def replace(obj: Module, **changes: Any) -> Module:
     return eqx.tree_at(lambda c: [getattr(c, key) for key in keys], obj, vals)  # type: ignore
 
 
+import jax
+
+# jax.tree_util.tree_reduce()
+
+
+def tree_reduce():
+    pass
+
+
 class EarlyStoppingException(Exception):
     """A callback can raise this exception `on_epoch_end` to break the training loop
     early. Useful if you want to write a custom alternative to `EarlyStoppingCallback`."""

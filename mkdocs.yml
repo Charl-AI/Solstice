@@ -91,13 +91,11 @@ markdown_extensions:
 nav:
   - Getting Started: 'index.md'
   - 'primer.md'
-  - 'from_flax_to_solstice.ipynb'
+  - 'parallelism_strategies.md'
+  - 'contributing.md'
 
   - API Reference:
     - solstice: 'api/solstice.md'
 
-
-  - Miscellaneous:
-    - 'example_projects.md'
-    - 'parallelism_strategies.md'
-    - 'contributing.md'
+  - Examples:
+    - 'from_flax_to_solstice.ipynb'
